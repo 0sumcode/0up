@@ -1,1 +1,3 @@
-export { default as UppyEncrypt } from './UppyEncrypt';
+export { UppyDecrypt } from './UppyDecrypt';
+export { UppyEncrypt } from './UppyEncrypt';
+export { default as UppyEncryptPlugin } from './UppyEncryptPlugin';

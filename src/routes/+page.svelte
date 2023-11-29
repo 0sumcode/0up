@@ -3,7 +3,7 @@
   import Dashboard from '@uppy/dashboard';
   import Uppy from '@uppy/core';
   import Webcam from '@uppy/webcam';
-  import { UppyEncrypt } from '$lib';
+  import { UppyEncryptPlugin } from '$lib';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
@@ -19,7 +19,7 @@
     //   sodiumWorker.postMessage(message);
     // }, 2500);
 
-    const uppy = new Uppy().use(Webcam).use(UppyEncrypt).use(Dashboard, {
+    const uppy = new Uppy().use(Webcam).use(UppyEncryptPlugin).use(Dashboard, {
       theme: 'dark',
       inline: true,
       target: '#uppy-dashboard',

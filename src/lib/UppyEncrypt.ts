@@ -1,9 +1,10 @@
-import { BasePlugin, type DefaultPluginOptions, Uppy, type UppyFile } from '@uppy/core';
-import _sodium from 'libsodium-wrappers-sumo';
+import type { Uppy, UppyFile } from '@uppy/core';
+import type _sodium from 'libsodium-wrappers-sumo';
 
 const CHUNK_SIZE = 1000; //64 * 1024 * 1024;
+const SIGNATURE = 'TODO';
 
-class UppyEncrypt {
+export class UppyEncrypt {
   private uppy: Uppy;
   private sodium: typeof _sodium;
   private salt: Uint8Array;
@@ -53,10 +54,7 @@ class UppyEncrypt {
     while (this.index < this.file.size) {
       // If first chunk
       if (this.index === 0) {
-        // const SIGNATURE = new Uint8Array(
-        //   config.encoder.encode(config.sigCodes["v2_symmetric"])
-        // );
-        //streamController.enqueue(SIGNATURE);
+        this.streamController.enqueue(new Uint8Array(new TextEncoder().encode(SIGNATURE)));
         this.streamController.enqueue(this.salt);
         this.streamController.enqueue(this.header);
       }
@@ -94,49 +92,17 @@ class UppyEncrypt {
     return response.blob();
   }
 
+  getEncryptedFilename() {
+    const encryptedChunk = this.sodium.crypto_secretstream_xchacha20poly1305_push(
+      this.state,
+      new Uint8Array(new TextEncoder().encode(this.file.name)),
+      null,
+      this.sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+    );
+    return this.sodium.to_base64(encryptedChunk);
+  }
+
   getSalt() {
-    return this.salt;
-  }
-}
-
-export default class UppyEncryptPlugin extends BasePlugin {
-  constructor(uppy: Uppy, opts?: DefaultPluginOptions | undefined) {
-    super(uppy, opts);
-    this.id = opts?.id ?? 'UppyEncryptPlugin';
-    this.type = 'modifier';
-    this.encryptFiles = this.encryptFiles.bind(this);
-  }
-
-  async encryptFiles(fileIds: string[]) {
-    //init sodium
-    await _sodium.ready;
-    const sodium = _sodium;
-
-    for (const fileId of fileIds) {
-      const file = this.uppy.getFile(fileId);
-      const password = 'apples'; //sodium.to_base64(sodium.randombytes_buf(16), sodium.base64_variants.URLSAFE_NO_PADDING);
-      const enc = new UppyEncrypt(this.uppy, sodium, file, password);
-      await enc.encryptFile();
-      this.uppy.emit('preprocess-complete', file);
-      let blob = await enc.getEncryptedFile();
-      this.uppy.setFileState(fileId, {
-        name: 'test.enc',
-        meta: {
-          name: 'test.enc',
-        },
-        type: 'application/octet-stream',
-        data: blob,
-        size: blob.size,
-      });
-      console.log(this.uppy.getFile(fileId));
-    }
-  }
-
-  install() {
-    this.uppy.addPreProcessor(this.encryptFiles);
-  }
-
-  uninstall() {
-    this.uppy.removePreProcessor(this.encryptFiles);
+    return this.sodium.to_base64(this.salt);
   }
 }
