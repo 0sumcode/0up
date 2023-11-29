@@ -37,3 +37,12 @@
     tmp = tmp == 'red' ? 'blue' : 'red';
   }}>click</button>
 <div id="uppy-dashboard"></div>
+
+<style>
+  /**
+  * Hide weird "upload # files" button
+  */
+  :global(.uppy-StatusBar-actions .uppy-StatusBar-actionBtn--upload):not(.uppy-c-btn-primary) {
+    visibility: hidden;
+  }
+</style>

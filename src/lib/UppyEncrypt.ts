@@ -1,7 +1,7 @@
 import { BasePlugin, type DefaultPluginOptions, Uppy, type UppyFile } from '@uppy/core';
 import _sodium from 'libsodium-wrappers-sumo';
 
-const CHUNK_SIZE = 10000; //64 * 1024 * 1024;
+const CHUNK_SIZE = 1000; //64 * 1024 * 1024;
 
 class UppyEncrypt {
   private uppy: Uppy;
@@ -109,11 +109,8 @@ export default class UppyEncryptPlugin extends BasePlugin {
 
   async encryptFiles(fileIds: string[]) {
     //init sodium
-    let sodium;
-    if (typeof sodium === 'undefined') {
-      await _sodium.ready;
-      sodium = _sodium;
-    }
+    await _sodium.ready;
+    const sodium = _sodium;
 
     for (const fileId of fileIds) {
       const file = this.uppy.getFile(fileId);
