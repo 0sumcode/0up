@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { enhance } from '$app/forms';
   import Dashboard from '@uppy/dashboard';
   import Uppy from '@uppy/core';
   import Webcam from '@uppy/webcam';
@@ -9,16 +10,10 @@
   import '@uppy/dashboard/dist/style.css';
   import '@uppy/webcam/dist/style.css';
 
-  let sodiumWorker: Worker;
+  export let data;
+
   let uppy: Uppy;
   onMount(async () => {
-    // setTimeout(() => {
-    //   const message: SodiumMessage = {
-    //     msg: 'generatePassword',
-    //   };
-    //   sodiumWorker.postMessage(message);
-    // }, 2500);
-
     const uppy = new Uppy().use(Webcam).use(UppyEncryptPlugin).use(Dashboard, {
       theme: 'dark',
       inline: true,
@@ -29,8 +24,17 @@
   let tmp = 'red';
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<form class="space-y-6" method="POST" action="/auth" use:enhance>
+  <input type="email" name="email" value="" />
+  <button type="submit">log in</button>
+</form>
+
+<form class="space-y-6" method="POST" action="/auth/confirm" use:enhance>
+  <input type="email" name="email" value="" />
+  <input type="text" name="token" value="" />
+  <button type="submit">log in</button>
+</form>
+
 <button
   style="background-color: {tmp};"
   on:click={() => {
