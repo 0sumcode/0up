@@ -11,9 +11,14 @@
   import '@uppy/webcam/dist/style.css';
 
   export let data;
+  const supabase = data.supabase;
 
   let uppy: Uppy;
   onMount(async () => {
+    //await supabase.from('upload').insert({ hash: 'test' });
+    const { data, error } = await supabase.from('upload').select();
+    console.log(data, error);
+
     const uppy = new Uppy().use(Webcam).use(UppyEncryptPlugin).use(Dashboard, {
       theme: 'dark',
       inline: true,
