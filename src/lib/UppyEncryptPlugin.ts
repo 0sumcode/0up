@@ -28,16 +28,16 @@ export default class UppyEncryptPlugin extends BasePlugin {
         size: blob.size,
       });
 
-      const dec = new UppyDecrypt('applesapples', enc.getSalt(), enc.getHeader(), blob);
-      await dec.decryptFile();
-      let decF = await dec.getDecryptedFile();
-      console.log(await decF.text());
-      // console.log(decF);
+      console.log(enc.getPasswordHash(), enc.getSalt(), enc.getHeader());
+      // const dec = new UppyDecrypt('applesapples', enc.getSalt(), enc.getHeader(), blob);
+      // await dec.decryptFile();
+      // let decF = await dec.getDecryptedFile();
+      //console.log(await decF.text());
 
       //console.log(this.uppy.getFile(fileId), enc.getSalt(), enc.getHeader(), enc.getEncryptedFilename());
       //const dec = new UppyDecrypt('applesapples', enc.getPasswordHash(), enc.getSalt(), enc.getHeader());
       // let link = document.createElement('a');
-      // link.href = window.URL.createObjectURL(blob);
+      // link.href = window.URL.createObjectURL(decF);
       // link.download = 'test2.enc';
       // document.body.appendChild(link);
       // link.click();
