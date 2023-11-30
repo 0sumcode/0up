@@ -1,12 +1,16 @@
 import type { Uppy, UppyFile } from '@uppy/core';
-import type _sodium from 'libsodium-wrappers-sumo';
+import _sodium from 'libsodium-wrappers-sumo';
+import { CHUNK_SIZE, SIGNATURE } from '$lib';
 
-const CHUNK_SIZE = 1000; //64 * 1024 * 1024;
-const SIGNATURE = 'TODO';
+// Init Sodium
+let sodium: typeof _sodium;
+(async () => {
+  await _sodium.ready;
+  sodium = _sodium;
+})();
 
 export class UppyEncrypt {
   private uppy: Uppy;
-  private sodium: typeof _sodium;
   private salt: Uint8Array;
   private key: Uint8Array;
   private state: _sodium.StateAddress;
@@ -14,12 +18,12 @@ export class UppyEncrypt {
   private file: UppyFile<Record<string, unknown>, Record<string, unknown>>;
   private stream: ReadableStream;
   private streamController: ReadableStreamDefaultController | undefined;
+  private passwordHash: string;
 
   private index = 0;
 
-  constructor(uppy: Uppy, sodium: typeof _sodium, file: UppyFile<Record<string, unknown>, Record<string, unknown>>, password: string) {
+  constructor(uppy: Uppy, file: UppyFile<Record<string, unknown>, Record<string, unknown>>, password: string) {
     this.uppy = uppy;
-    this.sodium = sodium;
     this.file = file;
 
     this.streamController;
@@ -39,14 +43,18 @@ export class UppyEncrypt {
       sodium.crypto_pwhash_ALG_ARGON2ID13
     );
 
-    let res = sodium.crypto_secretstream_xchacha20poly1305_init_push(this.key);
+    const res = sodium.crypto_secretstream_xchacha20poly1305_init_push(this.key);
     this.state = res.state;
     this.header = res.header;
+
+    this.passwordHash = sodium.crypto_pwhash_str(password, sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE);
+  }
+
+  static generatePassword() {
+    return sodium.to_base64(sodium.randombytes_buf(16), sodium.base64_variants.URLSAFE_NO_PADDING);
   }
 
   async encryptFile() {
-    const sodium = this.sodium;
-
     if (!this.streamController) {
       throw new Error('Encryption stream does not exist');
     }
@@ -93,16 +101,24 @@ export class UppyEncrypt {
   }
 
   getEncryptedFilename() {
-    const encryptedChunk = this.sodium.crypto_secretstream_xchacha20poly1305_push(
+    const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(
       this.state,
       new Uint8Array(new TextEncoder().encode(this.file.name)),
       null,
-      this.sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+      sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
     );
-    return this.sodium.to_base64(encryptedChunk);
+    return sodium.to_base64(encryptedChunk, sodium.base64_variants.URLSAFE_NO_PADDING);
+  }
+
+  getPasswordHash() {
+    return this.passwordHash;
+  }
+
+  getHeader() {
+    return sodium.to_base64(this.header, sodium.base64_variants.URLSAFE_NO_PADDING);
   }
 
   getSalt() {
-    return this.sodium.to_base64(this.salt);
+    return sodium.to_base64(this.salt, sodium.base64_variants.URLSAFE_NO_PADDING);
   }
 }

@@ -1,6 +1,6 @@
+import { UppyDecrypt } from './UppyDecrypt';
 import { UppyEncrypt } from './UppyEncrypt';
 import { BasePlugin, type DefaultPluginOptions, Uppy, type UppyFile } from '@uppy/core';
-import _sodium from 'libsodium-wrappers-sumo';
 
 export default class UppyEncryptPlugin extends BasePlugin {
   constructor(uppy: Uppy, opts?: DefaultPluginOptions | undefined) {
@@ -11,14 +11,10 @@ export default class UppyEncryptPlugin extends BasePlugin {
   }
 
   async encryptFiles(fileIds: string[]) {
-    //init sodium
-    await _sodium.ready;
-    const sodium = _sodium;
-
     for (const fileId of fileIds) {
       const file = this.uppy.getFile(fileId);
-      const password = 'applesapples'; //sodium.to_base64(sodium.randombytes_buf(16), sodium.base64_variants.URLSAFE_NO_PADDING);
-      const enc = new UppyEncrypt(this.uppy, sodium, file, password);
+      const password = 'applesapples'; //UppyEncrypt.generatePassword();
+      const enc = new UppyEncrypt(this.uppy, file, password);
       await enc.encryptFile();
       this.uppy.emit('preprocess-complete', file);
       let blob = await enc.getEncryptedFile();
@@ -31,8 +27,9 @@ export default class UppyEncryptPlugin extends BasePlugin {
         data: blob,
         size: blob.size,
       });
-      console.log(this.uppy.getFile(fileId), enc.getSalt(), enc.getEncryptedFilename());
 
+      //console.log(this.uppy.getFile(fileId), enc.getSalt(), enc.getHeader(), enc.getEncryptedFilename());
+      const dec = new UppyDecrypt('applesapples', enc.getPasswordHash(), enc.getSalt(), enc.getHeader());
       // let link = document.createElement('a');
       // link.href = window.URL.createObjectURL(blob);
       // link.download = 'test2.enc';
