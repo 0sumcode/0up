@@ -17,6 +17,7 @@ export class UppyEncrypt {
   private file: UppyFile<Record<string, unknown>, Record<string, unknown>>;
   private stream: ReadableStream;
   private streamController: ReadableStreamDefaultController | undefined;
+  private streamCanceled = false;
   private passwordHash: string;
 
   private index = 0;
@@ -24,6 +25,11 @@ export class UppyEncrypt {
   constructor(uppy: Uppy, file: UppyFile<Record<string, unknown>, Record<string, unknown>>, password: string) {
     this.uppy = uppy;
     this.file = file;
+
+    // Set Uppy event handlers that effect the encryption process
+    uppy.on('cancel-all', () => {
+      this.streamCanceled = true;
+    });
 
     this.streamController;
     this.stream = new ReadableStream({
@@ -59,6 +65,11 @@ export class UppyEncrypt {
     }
 
     while (this.index < this.file.size) {
+      if (this.streamCanceled) {
+        await this.stream.cancel();
+        return false;
+      }
+
       // If first chunk
       if (this.index === 0) {
         this.streamController.enqueue(new Uint8Array(new TextEncoder().encode(SIGNATURE)));
@@ -92,6 +103,8 @@ export class UppyEncrypt {
     });
 
     this.streamController.close();
+
+    return true;
   }
 
   async getEncryptedFile() {
