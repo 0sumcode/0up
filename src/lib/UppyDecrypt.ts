@@ -52,12 +52,12 @@ export class UppyDecrypt {
     }
 
     while (this.index < this.file.size) {
-      const chunk = await this.file.slice(this.index, this.index + CHUNK_SIZE).arrayBuffer();
+      const chunk = await this.file.slice(this.index, this.index + CHUNK_SIZE + sodium.crypto_secretstream_xchacha20poly1305_ABYTES).arrayBuffer();
       const decryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_pull(this.state, new Uint8Array(chunk));
 
       this.streamController.enqueue(decryptedChunk.message);
 
-      this.index += CHUNK_SIZE;
+      this.index += CHUNK_SIZE + sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
     }
 
     this.streamController.close();
