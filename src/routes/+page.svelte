@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { enhance } from '$app/forms';
   import Dashboard from '@uppy/dashboard';
-  import Uppy from '@uppy/core';
+  import { Uppy, type UppyFile } from '@uppy/core';
+  import AwsS3Multpart from '@uppy/aws-s3-multipart';
   import Webcam from '@uppy/webcam';
   import { UppyEncryptPlugin } from '$lib';
 
@@ -19,11 +20,62 @@
     const { data, error } = await supabase.from('upload').select();
     console.log(data, error);
 
-    const uppy = new Uppy().use(Webcam).use(UppyEncryptPlugin).use(Dashboard, {
-      theme: 'dark',
-      inline: true,
-      target: '#uppy-dashboard',
-    });
+    const uppy = new Uppy()
+      .use(Webcam)
+      .use(UppyEncryptPlugin)
+      .use(Dashboard, {
+        theme: 'dark',
+        inline: true,
+        target: '#uppy-dashboard',
+      })
+      .use(AwsS3Multpart, {
+        shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
+        // async getTemporarySecurityCredentials(signal) {
+        //   const response = await fetch('/_api/upload/sts', signal);
+        //   return response.json();
+        // },
+        async getUploadParameters(file: UppyFile, { signal }) {
+          const response = await fetch('/_api/upload/s3', {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+            },
+            // body: serialize({
+            //   filename: file.name,
+            //   contentType: file.type,
+            // }),
+            signal,
+          });
+
+          // TODO handle errors
+
+          const data = await response.json();
+
+          return {
+            method: data.method,
+            url: data.url,
+            fields: {}, // For presigned PUT uploads, this should be left empty.
+            // Provide content type header required by S3
+            headers: {
+              'Content-Type': 'application/octet-stream', //file.type,
+            },
+          };
+        },
+        // async createMultipartUpload(file: UppyFile, signal: AbortSignal) {
+        //   signal?.throwIfAborted();
+        //   return '{}';
+        // },
+        // async abortMultipartUpload(file: UppyFile, { key, uploadId }, signal) {},
+        // async signPart(file, options) {
+        //   return '{}';
+        // },
+        // async listParts(file, { key, uploadId }, signal) {
+        //   return '{}';
+        // },
+        // async completeMultipartUpload(file, { key, uploadId, parts }, signal) {
+        //   return '{}';
+        // },
+      });
   });
 
   let tmp = 'red';
