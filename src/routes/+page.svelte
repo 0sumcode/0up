@@ -11,8 +11,6 @@
   import '@uppy/dashboard/dist/style.css';
   import '@uppy/webcam/dist/style.css';
 
-  export let data;
-
   let uppy: Uppy;
   onMount(async () => {
     const uppy = new Uppy()
@@ -42,7 +40,9 @@
             signal,
           });
 
-          // TODO handle errors
+          if (!response.ok) {
+            throw new Error('Not authenticated');
+          }
 
           const data = await response.json();
 
