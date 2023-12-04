@@ -3,13 +3,31 @@
   import { enhance } from '$app/forms';
   import Dashboard from '@uppy/dashboard';
   import { Uppy, type UppyFile } from '@uppy/core';
-  import AwsS3Multpart from '@uppy/aws-s3-multipart';
+  import AwsS3Multipart from '@uppy/aws-s3-multipart';
   import Webcam from '@uppy/webcam';
   import { UppyEncryptPlugin } from '$lib';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
   import '@uppy/webcam/dist/style.css';
+
+  // Create/sign an upload request
+  const createUpload = async (signal, isMultipart = false) => {
+    const response = await fetch(`/_api/upload/s3${isMultipart ? '/multipart' : ''}`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+      },
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error('Request failed');
+    }
+
+    const data = await response.json();
+    return data;
+  };
 
   let uppy: Uppy;
   onMount(async () => {
@@ -21,55 +39,83 @@
         inline: true,
         target: '#uppy-dashboard',
       })
-      .use(AwsS3Multpart, {
-        shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
-        // async getTemporarySecurityCredentials(signal) {
-        //   const response = await fetch('/_api/upload/sts', signal);
-        //   return response.json();
-        // },
+      .use(AwsS3Multipart, {
+        shouldUseMultipart: (file) => file.size > 10_000, //100 * 2 ** 20,
         async getUploadParameters(file: UppyFile, { signal }) {
-          const response = await fetch('/_api/upload/s3', {
-            method: 'POST',
-            headers: {
-              accept: 'application/json',
-            },
-            // body: serialize({
-            //   filename: file.name,
-            //   contentType: file.type,
-            // }),
-            signal,
-          });
-
-          if (!response.ok) {
-            throw new Error('Not authenticated');
-          }
-
-          const data = await response.json();
-
+          signal?.throwIfAborted();
+          const data = await createUpload(signal);
           return {
             method: data.method,
             url: data.url,
             fields: {}, // For presigned PUT uploads, this should be left empty.
-            // Provide content type header required by S3
             headers: {
               'Content-Type': 'application/octet-stream', //file.type,
             },
           };
         },
-        // async createMultipartUpload(file: UppyFile, signal: AbortSignal) {
-        //   signal?.throwIfAborted();
-        //   return '{}';
-        // },
-        // async abortMultipartUpload(file: UppyFile, { key, uploadId }, signal) {},
-        // async signPart(file, options) {
-        //   return '{}';
-        // },
-        // async listParts(file, { key, uploadId }, signal) {
-        //   return '{}';
-        // },
-        // async completeMultipartUpload(file, { key, uploadId, parts }, signal) {
-        //   return '{}';
-        // },
+        async createMultipartUpload(file: UppyFile, signal: AbortSignal) {
+          signal?.throwIfAborted();
+          const data = await createUpload(signal, true);
+          return data;
+        },
+        async signPart(file, { uploadId, key, partNumber, signal }) {
+          console.log('SIGNPART', uploadId, key, partNumber, signal);
+          signal?.throwIfAborted();
+
+          if (uploadId == null || key == null || partNumber == null) {
+            throw new Error('Cannot sign without a key, an uploadId, and a partNumber');
+          }
+
+          const response = await fetch(`/_api/upload/s3/multipart/${uploadId}/${partNumber}?key=${encodeURIComponent(key)}`, { signal });
+
+          if (!response.ok) {
+            throw new Error('Request failed');
+          }
+
+          const data = await response.json();
+          return data;
+        },
+        async listParts(file, { key, uploadId }, signal) {
+          signal?.throwIfAborted();
+
+          const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, { signal });
+
+          if (!response.ok) {
+            throw new Error('Request failed');
+          }
+
+          const data = await response.json();
+          return data;
+        },
+        async completeMultipartUpload(file, { key, uploadId, parts }, signal) {
+          signal?.throwIfAborted();
+
+          const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}/complete?key=${encodeURIComponent(key)}`, {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+            },
+            body: JSON.stringify(parts),
+            signal,
+          });
+
+          if (!response.ok) {
+            throw new Error('Request failed');
+          }
+
+          const data = await response.json();
+          return data;
+        },
+        async abortMultipartUpload(file: UppyFile, { key, uploadId }, signal) {
+          const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, {
+            method: 'DELETE',
+            signal,
+          });
+
+          if (!response.ok) {
+            throw new Error('Request failed');
+          }
+        },
       });
   });
 
