@@ -12,13 +12,12 @@
   import '@uppy/webcam/dist/style.css';
 
   // Create/sign an upload request
-  const createUpload = async (signal, isMultipart = false) => {
+  const createUpload = async (isMultipart = false) => {
     const response = await fetch(`/_api/upload/s3${isMultipart ? '/multipart' : ''}`, {
       method: 'POST',
       headers: {
         accept: 'application/json',
       },
-      signal,
     });
 
     if (!response.ok) {
@@ -41,9 +40,8 @@
       })
       .use(AwsS3Multipart, {
         shouldUseMultipart: (file) => file.size > 10_000, //100 * 2 ** 20,
-        async getUploadParameters(file: UppyFile, { signal }) {
-          signal?.throwIfAborted();
-          const data = await createUpload(signal);
+        async getUploadParameters(file: UppyFile) {
+          const data = await createUpload();
           return {
             method: data.method,
             url: data.url,
@@ -53,13 +51,11 @@
             },
           };
         },
-        async createMultipartUpload(file: UppyFile, signal: AbortSignal) {
-          signal?.throwIfAborted();
-          const data = await createUpload(signal, true);
+        async createMultipartUpload(file: UppyFile) {
+          const data = await createUpload(true);
           return data;
         },
         async signPart(file, { uploadId, key, partNumber, signal }) {
-          console.log('SIGNPART', uploadId, key, partNumber, signal);
           signal?.throwIfAborted();
 
           if (uploadId == null || key == null || partNumber == null) {
@@ -75,7 +71,7 @@
           const data = await response.json();
           return data;
         },
-        async listParts(file, { key, uploadId }, signal) {
+        async listParts(file, { key, uploadId, signal }) {
           signal?.throwIfAborted();
 
           const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, { signal });
@@ -87,7 +83,7 @@
           const data = await response.json();
           return data;
         },
-        async completeMultipartUpload(file, { key, uploadId, parts }, signal) {
+        async completeMultipartUpload(file, { key, uploadId, parts, signal }) {
           signal?.throwIfAborted();
 
           const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}/complete?key=${encodeURIComponent(key)}`, {
@@ -106,7 +102,7 @@
           const data = await response.json();
           return data;
         },
-        async abortMultipartUpload(file: UppyFile, { key, uploadId }, signal) {
+        async abortMultipartUpload(file: UppyFile, { key, uploadId, signal }) {
           const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, {
             method: 'DELETE',
             signal,
