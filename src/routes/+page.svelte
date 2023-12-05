@@ -4,11 +4,10 @@
   import Dashboard from '@uppy/dashboard';
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
-  import { UppyEncryptPlugin } from '$lib';
+  import UppyEncryptPlugin from 'uppy-encrypt';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
-  import '@uppy/webcam/dist/style.css';
 
   // Create/sign an upload request
   const createUpload = async (isMultipart = false) => {
@@ -111,28 +110,15 @@
             throw new Error('Request failed');
           }
         },
+      })
+      .on('upload-success', (file, response) => {
+        console.log(file, response);
       });
   });
 
   let tmp = 'red';
 </script>
 
-<form class="space-y-6" method="POST" action="/auth" use:enhance>
-  <input type="email" name="email" value="" />
-  <button type="submit">log in</button>
-</form>
-
-<form class="space-y-6" method="POST" action="/auth/confirm" use:enhance>
-  <input type="email" name="email" value="" />
-  <input type="text" name="token" value="" />
-  <button type="submit">log in</button>
-</form>
-
-<button
-  style="background-color: {tmp};"
-  on:click={() => {
-    tmp = tmp == 'red' ? 'blue' : 'red';
-  }}>click</button>
 <div id="uppy-dashboard"></div>
 
 <style>
