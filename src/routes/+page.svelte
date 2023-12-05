@@ -4,7 +4,6 @@
   import Dashboard from '@uppy/dashboard';
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
-  import Webcam from '@uppy/webcam';
   import { UppyEncryptPlugin } from '$lib';
 
   import '@uppy/core/dist/style.css';
@@ -31,7 +30,6 @@
   let uppy: Uppy;
   onMount(async () => {
     const uppy = new Uppy()
-      .use(Webcam)
       .use(UppyEncryptPlugin)
       .use(Dashboard, {
         theme: 'dark',
