@@ -28,11 +28,12 @@ export default class UppyEncryptPlugin extends BasePlugin {
           size: blob.size,
         });
 
-        console.log(enc.getPasswordHash(), enc.getSalt(), enc.getHeader());
-        // const dec = new UppyDecrypt('applesapples', enc.getSalt(), enc.getHeader(), blob);
-        // await dec.decryptFile();
+        //console.log(enc.getPasswordHash(), enc.getSalt(), enc.getHeader(), enc.getEncryptMetaData());
+        const encMeta = enc.getEncryptMetaData();
+        // const dec = new UppyDecrypt('applesapples', enc.getSalt(), enc.getHeader());
+        // console.log(dec.getDecryptedMetaData(encMeta.header, encMeta.meta));
+        // await dec.decryptFile(blob);
         // let decF = await dec.getDecryptedFile();
-        //console.log(await decF.text());
 
         //console.log(this.uppy.getFile(fileId), enc.getSalt(), enc.getHeader(), enc.getEncryptedFilename());
         //const dec = new UppyDecrypt('applesapples', enc.getPasswordHash(), enc.getSalt(), enc.getHeader());

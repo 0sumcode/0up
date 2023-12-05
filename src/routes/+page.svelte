@@ -40,6 +40,7 @@
       })
       .use(AwsS3Multipart, {
         shouldUseMultipart: (file) => file.size > 10_000, //100 * 2 ** 20,
+        allowedMetaFields: ['name', 'type'],
         async getUploadParameters(file: UppyFile) {
           const data = await createUpload();
           return {

@@ -12,6 +12,7 @@ let sodium: typeof _sodium;
 export class UppyEncrypt {
   private uppy: Uppy;
   private salt: Uint8Array;
+  private key: Uint8Array;
   private state: _sodium.StateAddress;
   private header: Uint8Array;
   private file: UppyFile<Record<string, unknown>, Record<string, unknown>>;
@@ -39,7 +40,7 @@ export class UppyEncrypt {
     });
 
     this.salt = sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
-    const key = sodium.crypto_pwhash(
+    this.key = sodium.crypto_pwhash(
       sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES,
       password,
       this.salt,
@@ -48,7 +49,7 @@ export class UppyEncrypt {
       sodium.crypto_pwhash_ALG_ARGON2ID13
     );
 
-    const res = sodium.crypto_secretstream_xchacha20poly1305_init_push(key);
+    const res = sodium.crypto_secretstream_xchacha20poly1305_init_push(this.key);
     this.state = res.state;
     this.header = res.header;
 
@@ -112,14 +113,22 @@ export class UppyEncrypt {
     return response.blob();
   }
 
-  getEncryptedFilename() {
+  getEncryptMetaData() {
+    // Init fresh state
+    const res = sodium.crypto_secretstream_xchacha20poly1305_init_push(this.key);
+
+    const metaJson = JSON.stringify({ name: this.file.meta.name, type: this.file.meta.type || null });
     const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(
-      this.state,
-      new Uint8Array(new TextEncoder().encode(this.file.name)),
+      res.state,
+      new Uint8Array(new TextEncoder().encode(metaJson)),
       null,
       sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
     );
-    return sodium.to_base64(encryptedChunk, sodium.base64_variants.URLSAFE_NO_PADDING);
+
+    return {
+      header: sodium.to_base64(res.header, sodium.base64_variants.URLSAFE_NO_PADDING),
+      meta: sodium.to_base64(encryptedChunk, sodium.base64_variants.URLSAFE_NO_PADDING),
+    };
   }
 
   getPasswordHash() {
