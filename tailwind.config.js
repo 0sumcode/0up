@@ -3,7 +3,11 @@ export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        audiowide: ['Audiowide', 'normal'],
+      },
+    },
   },
   plugins: [require('@tailwindcss/forms')],
 };

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { enhance } from '$app/forms';
   import Dashboard from '@uppy/dashboard';
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
@@ -36,7 +35,7 @@
         target: '#uppy-dashboard',
       })
       .use(AwsS3Multipart, {
-        shouldUseMultipart: (file) => file.size > 10_000, //100 * 2 ** 20,
+        shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
         allowedMetaFields: ['name', 'type'],
         async getUploadParameters(file: UppyFile) {
           const data = await createUpload();
@@ -115,11 +114,9 @@
         console.log(file, response);
       });
   });
-
-  let tmp = 'red';
 </script>
 
-<div id="uppy-dashboard"></div>
+<div id="uppy-dashboard" class="border-collapse border-0 bg-zinc-900"></div>
 
 <style>
   /**
@@ -127,5 +124,9 @@
   */
   :global(.uppy-StatusBar-actions .uppy-StatusBar-actionBtn--upload):not(.uppy-c-btn-primary) {
     visibility: hidden;
+  }
+
+  :global(.uppy-Dashboard-inner) {
+    border: none;
   }
 </style>
