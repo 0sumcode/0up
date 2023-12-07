@@ -3,7 +3,7 @@
   import Dashboard from '@uppy/dashboard';
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
-  import UppyEncryptPlugin from 'uppy-encrypt';
+  import { UppyEncryptPlugin, generatePassword } from 'uppy-encrypt';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
@@ -110,8 +110,26 @@
           }
         },
       })
-      .on('upload-success', (file, response) => {
-        console.log(file, response);
+      // .on('upload', (data) => {
+      //   console.log('UPLOAD', data);
+      // })
+      // .on('upload-success', (file, response) => {
+      //   console.log('UP SUCCESS', file, response);
+      // })
+      .on('complete', async (result) => {
+        console.log(result);
+        const files = [];
+        for (const file of result.successful) {
+          files.push({ path: file.uploadURL.split('/').slice(-2).join('/'), meta: file.meta.UppyEncrypt });
+        }
+
+        const response = await fetch(`/_api/upload/complete`, {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+          },
+          body: JSON.stringify(files),
+        });
       });
   });
 </script>
