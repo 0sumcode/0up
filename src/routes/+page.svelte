@@ -130,6 +130,9 @@
           },
           body: JSON.stringify(files),
         });
+
+        // Generate new password for future upload
+        uppy.getPlugin('UppyEncryptPlugin')?.setOptions({ password: generatePassword() });
       });
   });
 </script>
