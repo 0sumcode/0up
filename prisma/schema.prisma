@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRIVATE_DATABASE_URL")
+}
+
+model file {
+  id                         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                 DateTime @default(now()) @db.Timestamptz(6)
+  upload                     String   @db.Uuid
+  salt                       String
+  header                     String
+  upload_file_uploadToupload upload   @relation("file_uploadToupload", fields: [upload], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model upload {
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at               DateTime @default(now()) @db.Timestamptz(6)
+  hash                     String
+  file_file_uploadToupload file[]   @relation("file_uploadToupload")
+}
