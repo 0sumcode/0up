@@ -13,6 +13,9 @@ model file {
   upload                     String   @db.Uuid
   salt                       String
   header                     String
+  size                       BigInt
+  meta_header                String
+  meta_data                  String
   upload_file_uploadToupload upload   @relation("file_uploadToupload", fields: [upload], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 

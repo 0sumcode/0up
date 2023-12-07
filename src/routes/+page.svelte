@@ -4,6 +4,7 @@
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
   import { UppyEncryptPlugin, generatePassword } from 'uppy-encrypt';
+  import { PUBLIC_HOSTNAME } from '$env/static/public';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
@@ -110,17 +111,14 @@
           }
         },
       })
-      // .on('upload', (data) => {
-      //   console.log('UPLOAD', data);
-      // })
-      // .on('upload-success', (file, response) => {
-      //   console.log('UP SUCCESS', file, response);
-      // })
       .on('complete', async (result) => {
         console.log(result);
         const files = [];
+
+        if (!result.successful.length) return;
+
         for (const file of result.successful) {
-          files.push({ path: file.uploadURL.split('/').slice(-2).join('/'), meta: file.meta.UppyEncrypt });
+          files.push({ path: file.uploadURL.split('/').slice(-2).join('/'), data: file.meta.encryption });
         }
 
         const response = await fetch(`/_api/upload/complete`, {
@@ -130,6 +128,11 @@
           },
           body: JSON.stringify(files),
         });
+
+        // Construct URL
+        const data = await response.json();
+        const url = `https://${PUBLIC_HOSTNAME}/${data.upload.replace(/-/g, '')}#${result.successful[0].meta.password}`;
+        console.log(url);
 
         // Generate new password for future upload
         uppy.getPlugin('UppyEncryptPlugin')?.setOptions({ password: generatePassword() });
