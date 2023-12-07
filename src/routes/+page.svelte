@@ -3,8 +3,7 @@
   import Dashboard from '@uppy/dashboard';
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
-  import { UppyEncryptPlugin, generatePassword } from 'uppy-encrypt';
-  import { PUBLIC_HOSTNAME } from '$env/static/public';
+  import { UppyEncryptPlugin, UppyEncrypt } from 'uppy-encrypt';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
@@ -131,11 +130,11 @@
 
         // Construct URL
         const data = await response.json();
-        const url = `https://${PUBLIC_HOSTNAME}/${data.upload.replace(/-/g, '')}#${result.successful[0].meta.password}`;
+        const url = `${window.location.protocol}//${window.location.host}/${data.upload.replace(/-/g, '')}#${result.successful[0].meta.password}`;
         console.log(url);
 
         // Generate new password for future upload
-        uppy.getPlugin('UppyEncryptPlugin')?.setOptions({ password: generatePassword() });
+        uppy.getPlugin('UppyEncryptPlugin')?.setOptions({ password: UppyEncrypt.generatePassword() });
       });
   });
 </script>
