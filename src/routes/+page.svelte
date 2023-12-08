@@ -30,6 +30,7 @@
     const uppy = new Uppy()
       .use(UppyEncryptPlugin)
       .use(Dashboard, {
+        width: 2432,
         theme: 'dark',
         inline: true,
         target: '#uppy-dashboard',
@@ -37,22 +38,22 @@
       .use(AwsS3Multipart, {
         shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
         allowedMetaFields: ['name', 'type'],
-        async getUploadParameters(file: UppyFile) {
+        getUploadParameters: async (file: UppyFile) => {
           const data = await createUpload();
           return {
             method: data.method,
             url: data.url,
             fields: {}, // For presigned PUT uploads, this should be left empty.
             headers: {
-              'Content-Type': 'application/octet-stream', //file.type,
+              'Content-Type': 'application/octet-stream', // encrypted data, so always octet-stream
             },
           };
         },
-        async createMultipartUpload(file: UppyFile) {
+        createMultipartUpload: async (file: UppyFile) => {
           const data = await createUpload(true);
           return data;
         },
-        async signPart(file, { uploadId, key, partNumber, signal }) {
+        signPart: async (file, { uploadId, key, partNumber, signal }) => {
           signal?.throwIfAborted();
 
           if (uploadId == null || key == null || partNumber == null) {
@@ -68,7 +69,7 @@
           const data = await response.json();
           return data;
         },
-        async listParts(file, { key, uploadId, signal }) {
+        listParts: async (file, { key, uploadId, signal }) => {
           signal?.throwIfAborted();
 
           const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, { signal });
@@ -80,7 +81,7 @@
           const data = await response.json();
           return data;
         },
-        async completeMultipartUpload(file, { key, uploadId, parts, signal }) {
+        completeMultipartUpload: async (file, { key, uploadId, parts, signal }) => {
           signal?.throwIfAborted();
 
           const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}/complete?key=${encodeURIComponent(key)}`, {
@@ -99,7 +100,7 @@
           const data = await response.json();
           return data;
         },
-        async abortMultipartUpload(file: UppyFile, { key, uploadId, signal }) {
+        abortMultipartUpload: async (file: UppyFile, { key, uploadId, signal }) => {
           const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, {
             method: 'DELETE',
             signal,
@@ -139,7 +140,95 @@
   });
 </script>
 
-<div id="uppy-dashboard" class="border-collapse border-0 bg-zinc-900"></div>
+<div class="bg-zinc-900 py-12">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl sm:text-center">
+      <h2 class="text-base font-semibold leading-7 text-blue-400">Free, ephemeral, <a href="#" target="_blank" class="underline">open-source</a></h2>
+      <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl"><span class="font-audiowide">0</span>-knowledge encrypted file uploads</p>
+      <!-- <p class="mt-6 text-lg leading-8 text-zinc-300">
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis.
+      </p> -->
+    </div>
+  </div>
+  <div class="relative overflow-hidden pt-12">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div id="uppy-dashboard"></div>
+      <p class="mt-4 text-sm leading-6 text-zinc-300">
+        We care about your data. Read our <a href="#" class="font-semibold text-white">privacy policy</a>. Use of this service requires acceptance of our
+        <a href="#" class="font-semibold text-white">terms of service</a>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-zinc-900">
+  <div class="mx-auto max-w-7xl divide-y divide-zinc-400/10 px-6 py-12 lg:px-8">
+    <h2 class="text-2xl font-bold leading-10 tracking-tight text-white">Frequently asked questions</h2>
+    <dl class="mt-10 space-y-8 divide-y divide-zinc-400/10">
+      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Can 0up decrypt the files I upload?</dt>
+        <dd class="mt-4 lg:col-span-7 lg:mt-0">
+          <p class="text-base leading-7 text-zinc-300">
+            No. The key required for decryption is never sent to 0up, meaning we have no ability to decrypt your uploads. Your file's meta data (file name, file
+            type, etc) are also encrypted.
+          </p>
+        </dd>
+      </div>
+
+      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">How does 0up work?</dt>
+        <dd class="mt-4 lg:col-span-7 lg:mt-0">
+          <p class="text-base leading-7 text-zinc-300">
+            Your files are encrypted by your web browser, with a key that is generated on your browser. The key is never sent to 0up, meaning only you and those
+            you share the link with can download the decrypted files.
+          </p>
+        </dd>
+      </div>
+
+      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Could you be sneaky and take a peak at our keys?</dt>
+        <dd class="mt-4 lg:col-span-7 lg:mt-0">
+          <p class="text-base leading-7 text-zinc-300">
+            Your keys are passed as an anchor component in the URL (#YOUR_KEY_HERE). The anchor data is not sent as part of the request to the server and isn't
+            logged by the server. While that doesn't mean it's impossible for nefarious or bad code to leak the key, we're <a
+              href="#"
+              class="underline"
+              target="_blank">open source</a> and encourage you to check our work!
+          </p>
+        </dd>
+      </div>
+
+      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">How do you make money?</dt>
+        <dd class="mt-4 lg:col-span-7 lg:mt-0">
+          <p class="text-base leading-7 text-zinc-300">
+            We don't collect or sell user data, we don't include ads, and we don't have a paid plan. So, the short answer is, we don't make money. This is
+            simply a passion project. <a href="#" class="underline" target="_blank">Starring us on Github</a> and/or
+            <a href="#" class="underline" target="_blank">Product Hunt</a> would be much appreciated!
+          </p>
+        </dd>
+      </div>
+
+      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Do I have to trust you?</dt>
+        <dd class="mt-4 lg:col-span-7 lg:mt-0">
+          <p class="text-base leading-7 text-zinc-300">
+            Nope. <a href="#" class="underline" target="_blank">Clone 0up</a> and host it on your own infrastructure.
+          </p>
+        </dd>
+      </div>
+
+      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">What features will be added?</dt>
+        <dd class="mt-4 lg:col-span-7 lg:mt-0">
+          <p class="text-base leading-7 text-zinc-300">
+            You tell us (and see what's in the works) on <a href="#" class="underline" target="_blank">Github</a>.
+          </p>
+        </dd>
+      </div>
+    </dl>
+  </div>
+</div>
 
 <style>
   /**

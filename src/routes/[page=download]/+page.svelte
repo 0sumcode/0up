@@ -38,16 +38,16 @@
     const blob = await res.blob();
     try {
       const decBlob = await decryptors[0].decryptFile(blob); // TODO remove hard-coded index
+      const aElement = document.createElement('a');
+      aElement.setAttribute('download', 'test.enc'); // TODO remove hard-coded name
+      const href = URL.createObjectURL(decBlob);
+      aElement.href = href;
+      aElement.setAttribute('target', '_blank');
+      aElement.click();
+      URL.revokeObjectURL(href);
     } catch (e) {
       // TODO error
     }
-    const aElement = document.createElement('a');
-    aElement.setAttribute('download', 'test.enc'); // TODO remove hard-coded name
-    const href = URL.createObjectURL(decBlob);
-    aElement.href = href;
-    aElement.setAttribute('target', '_blank');
-    aElement.click();
-    URL.revokeObjectURL(href);
   };
 </script>
 
