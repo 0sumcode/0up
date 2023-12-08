@@ -23,5 +23,7 @@ model upload {
   id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   created_at               DateTime @default(now()) @db.Timestamptz(6)
   hash                     String
+  expire_hours             Int      @default(1)
+  expire_downloads         Int      @default(1)
   file_file_uploadToupload file[]   @relation("file_uploadToupload")
 }

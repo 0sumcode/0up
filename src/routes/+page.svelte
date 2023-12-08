@@ -12,6 +12,8 @@
   const expireOptions = JSON.parse(PUBLIC_UPLOAD_EXPIRE_OPTIONS);
   const maxDownloadOptions = JSON.parse(PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS);
 
+  let expires: number, downloads: number;
+
   // Create/sign an upload request
   const createUpload = async (isMultipart = false) => {
     const response = await fetch(`/_api/upload/s3${isMultipart ? '/multipart' : ''}`, {
@@ -37,7 +39,6 @@
         width: 2432,
         theme: 'dark',
         inline: true,
-        //disableThumbnailGenerator: true,
         target: '#uppy-dashboard',
         proudlyDisplayPoweredByUppy: false,
       })
@@ -132,7 +133,11 @@
           headers: {
             accept: 'application/json',
           },
-          body: JSON.stringify(files),
+          body: JSON.stringify({
+            expires,
+            downloads,
+            files,
+          }),
         });
 
         // Construct URL
@@ -165,8 +170,9 @@
           <div class="p-2 text-zinc-300">
             Expire after:
             <select
-              id="expire"
-              name="expire"
+              bind:value={expires}
+              id="expires"
+              name="expires"
               class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
               {#each expireOptions as value}
                 <option {value}>{value} Hour{value > 1 ? 's' : ''}</option>
@@ -174,8 +180,9 @@
             </select>
             or
             <select
-              id="expire"
-              name="expire"
+              bind:value={downloads}
+              id="downloads"
+              name="downloads"
               class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
               {#each maxDownloadOptions as value}
                 <option {value}>{value} Download{value > 1 ? 's' : ''}</option>
