@@ -4,9 +4,13 @@
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
   import { UppyEncryptPlugin, UppyEncrypt } from 'uppy-encrypt';
+  import { PUBLIC_UPLOAD_EXPIRE_OPTIONS, PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS } from '$env/static/public';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
+
+  const expireOptions = JSON.parse(PUBLIC_UPLOAD_EXPIRE_OPTIONS);
+  const maxDownloadOptions = JSON.parse(PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS);
 
   // Create/sign an upload request
   const createUpload = async (isMultipart = false) => {
@@ -33,7 +37,9 @@
         width: 2432,
         theme: 'dark',
         inline: true,
+        //disableThumbnailGenerator: true,
         target: '#uppy-dashboard',
+        proudlyDisplayPoweredByUppy: false,
       })
       .use(AwsS3Multipart, {
         shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
@@ -142,7 +148,7 @@
 
 <div class="bg-zinc-900 py-12">
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto max-w-2xl sm:text-center">
+    <div class="mx-auto sm:text-center">
       <h2 class="text-base font-semibold leading-7 text-blue-400">Free, ephemeral, <a href="#" target="_blank" class="underline">open-source</a></h2>
       <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl"><span class="font-audiowide">0</span>-knowledge encrypted file uploads</p>
       <!-- <p class="mt-6 text-lg leading-8 text-zinc-300">
@@ -153,10 +159,43 @@
   <div class="relative overflow-hidden pt-12">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div id="uppy-dashboard"></div>
-      <p class="mt-4 text-sm leading-6 text-zinc-300">
-        We care about your data. Read our <a href="#" class="font-semibold text-white">privacy policy</a>. Use of this service requires acceptance of our
-        <a href="#" class="font-semibold text-white">terms of service</a>.
-      </p>
+      <div class="flex flex-col lg:flex-row">
+        <!-- First Column -->
+        <div class="lg:w-1/2">
+          <div class="p-2 text-zinc-300">
+            Expire after:
+            <select
+              id="expire"
+              name="expire"
+              class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
+              {#each expireOptions as value}
+                <option {value}>{value} Hour{value > 1 ? 's' : ''}</option>
+              {/each}
+            </select>
+            or
+            <select
+              id="expire"
+              name="expire"
+              class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
+              {#each maxDownloadOptions as value}
+                <option {value}>{value} Download{value > 1 ? 's' : ''}</option>
+              {/each}
+            </select>
+          </div>
+        </div>
+        <!-- Second Column -->
+        <div class="lg:w-1/2">
+          <div class="p-2">
+            <!-- Content for the second column -->
+            <p class="text-right text-xs leading-6 text-zinc-300">
+              Use of this service requires acceptance of our <a href="#" class="font-semibold text-white">terms of service</a>.
+            </p>
+            <p class="text-right text-xs leading-6 text-zinc-300">
+              We care about your data. Read our <a href="#" class="font-semibold text-white">privacy policy</a>.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -166,21 +205,24 @@
     <h2 class="text-2xl font-bold leading-10 tracking-tight text-white">Frequently asked questions</h2>
     <dl class="mt-10 space-y-8 divide-y divide-zinc-400/10">
       <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Can 0up decrypt the files I upload?</dt>
+        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">
+          Can <span class="font-audiowide text-sm">0up</span> admins decrypt the files I upload?
+        </dt>
         <dd class="mt-4 lg:col-span-7 lg:mt-0">
           <p class="text-base leading-7 text-zinc-300">
-            No. The key required for decryption is never sent to 0up, meaning we have no ability to decrypt your uploads. Your file's meta data (file name, file
-            type, etc) are also encrypted.
+            No. The key required for decryption is never sent to <span class="font-audiowide text-sm">0up</span>, meaning we have no ability to decrypt your
+            uploads. Your file's meta data (file name, file type, etc) are also encrypted.
           </p>
         </dd>
       </div>
 
       <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">How does 0up work?</dt>
+        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">How does <span class="font-audiowide text-sm">0up</span> work?</dt>
         <dd class="mt-4 lg:col-span-7 lg:mt-0">
           <p class="text-base leading-7 text-zinc-300">
-            Your files are encrypted by your web browser, with a key that is generated on your browser. The key is never sent to 0up, meaning only you and those
-            you share the link with can download the decrypted files.
+            Your files are encrypted by your web browser, with a key that is generated on your browser. The key is never sent to <span
+              class="font-audiowide text-sm">0up</span
+            >, meaning only you and those you share the link with can download the decrypted files.
           </p>
         </dd>
       </div>
@@ -213,7 +255,7 @@
         <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Do I have to trust you?</dt>
         <dd class="mt-4 lg:col-span-7 lg:mt-0">
           <p class="text-base leading-7 text-zinc-300">
-            Nope. <a href="#" class="underline" target="_blank">Clone 0up</a> and host it on your own infrastructure.
+            Nope. <a href="#" class="underline" target="_blank">Clone <span class="font-audiowide text-sm">0up</span></a> and host it on your own infrastructure.
           </p>
         </dd>
       </div>
@@ -240,5 +282,6 @@
 
   :global(.uppy-Dashboard-inner) {
     border: none;
+    opacity: 0.8;
   }
 </style>
