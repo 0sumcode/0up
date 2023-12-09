@@ -12,7 +12,7 @@ export async function load({ params }) {
 
   if (!upload) throw error(404, 'Not found');
 
-  const files = await prisma.file.findMany({ where: { upload: upload.id } });
+  const files = await prisma.file.findMany({ where: { upload: upload.id, downloads: { lt: upload.expire_downloads } } });
 
   if (!files.length) throw error(404, 'Not found');
 

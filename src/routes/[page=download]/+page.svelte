@@ -3,6 +3,7 @@
   import { browser } from '$app/environment';
 
   export let data;
+  console.log(data);
 
   const decryptors: UppyDecrypt[] = [];
 
@@ -25,7 +26,7 @@
 
   const handleDownload = async () => {
     // Get signed download URL
-    const s3url = await fetch(`/_api/download/s3/${data.files[0].id}`); // TODO remove hard-coded val
+    const s3url = await fetch(`/_api/download/s3/${data.upload.id}/${data.files[0].id}`); // TODO remove hard-coded val
 
     if (!s3url.ok) {
       // TODO error
