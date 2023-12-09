@@ -1,16 +1,14 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { UppyDecrypt } from 'uppy-encrypt';
+  import { UppyDecrypt, onUppyEncryptReady } from 'uppy-encrypt';
+  import { browser } from '$app/environment';
 
   export let data;
-  console.log(data);
 
   const decryptors: UppyDecrypt[] = [];
 
-  onMount(() => {
+  if (browser) {
     const password = window.location.hash.substring(1);
-    // TODO replace timeout with sodium ready handler
-    setTimeout(() => {
+    onUppyEncryptReady(() => {
       // Verify password
       if (!UppyDecrypt.verifyPassword(data.upload.hash, password)) {
         // TODO error
@@ -22,8 +20,8 @@
         decryptors.push(decrypt);
         console.log(decrypt.getDecryptedMetaData(file.meta_header, file.meta_data));
       }
-    }, 1000);
-  });
+    });
+  }
 
   const handleDownload = async () => {
     // Get signed download URL

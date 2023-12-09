@@ -195,7 +195,7 @@
           <div class="p-2">
             <!-- Content for the second column -->
             <p class="text-right text-xs leading-6 text-zinc-300">
-              Use of this service requires acceptance of our <a href="#" class="font-semibold text-white">terms of service</a>.
+              Use of this service indicates acceptance of the <a href="#" class="font-semibold text-white">terms of service</a>.
             </p>
             <p class="text-right text-xs leading-6 text-zinc-300">
               We care about your data. Read our <a href="#" class="font-semibold text-white">privacy policy</a>.
