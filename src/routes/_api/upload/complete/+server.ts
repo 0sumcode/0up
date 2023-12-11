@@ -22,7 +22,7 @@ export const POST = async ({ params, request }) => {
   const upload = await prisma.upload.create({
     data: {
       hash: files[0].data.hash,
-      expire_hours,
+      expire_at: new Date(new Date().getTime() + 60 * 60 * expire_hours * 1000),
       expire_downloads,
     },
   });

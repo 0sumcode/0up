@@ -6,9 +6,9 @@ export async function load({ params }) {
   /**
    * TODO:
    * - Filter out any vals we don't want to send to client
-   * - 404 if max downloads reached, upload has expired, etc
+   * x 404 if max downloads reached, upload has expired, etc
    */
-  const upload = await prisma.upload.findUnique({ where: { id: params.page } });
+  const upload = await prisma.upload.findUnique({ where: { id: params.page, expire_at: { gte: new Date() }, deleted_at: null } });
 
   if (!upload) throw error(404, 'Not found');
 
