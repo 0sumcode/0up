@@ -1,9 +1,12 @@
 <script lang="ts">
   import { UppyDecrypt, onUppyEncryptReady, type DecryptedMetaData } from 'uppy-encrypt';
   import { browser } from '$app/environment';
+  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { getFileTypeIcon } from '$lib';
   import { filesize } from 'filesize';
-  import { page } from '$app/stores';
+  import { ModalConfirm } from '$lib/components';
+  import { PUBLIC_SHOW_DOWNLOAD_WARNING } from '$env/static/public';
 
   export let data;
   //console.log(data);
@@ -13,6 +16,8 @@
     decrypt: UppyDecrypt;
     meta: DecryptedMetaData;
   }
+
+  let showSafetyWarning = PUBLIC_SHOW_DOWNLOAD_WARNING === 'true' ? true : false;
 
   const files: FileDownload[] = [];
 
@@ -60,6 +65,22 @@
     }
   };
 </script>
+
+{#if showSafetyWarning}
+  <ModalConfirm
+    title="Confirm Download"
+    cancelButton="Cancel download"
+    confirmButton="I know and trust the sender"
+    showX={false}
+    on:close={() => {
+      goto('/');
+    }}
+    on:confirm={() => {
+      showSafetyWarning = false;
+    }}>
+    <span class="underline">Never</span> download files from someone you don't personally know and trust!
+  </ModalConfirm>
+{/if}
 
 <div class="mx-auto mt-12 max-w-2xl rounded-md bg-zinc-800 px-6 lg:px-8">
   <ul role="list" class="divide-y divide-zinc-700">
