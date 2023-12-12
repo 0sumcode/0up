@@ -3,6 +3,7 @@
   import { browser } from '$app/environment';
   import { getFileTypeIcon } from '$lib';
   import { filesize } from 'filesize';
+  import { page } from '$app/stores';
 
   export let data;
   //console.log(data);
@@ -14,7 +15,6 @@
   }
 
   const files: FileDownload[] = [];
-  const decryptors: UppyDecrypt[] = [];
 
   if (browser) {
     const password = window.location.hash.substring(1);
@@ -34,9 +34,9 @@
     });
   }
 
-  const handleDownload = async () => {
+  const handleDownload = async (file: FileDownload) => {
     // Get signed download URL
-    const s3url = await fetch(`/_api/download/s3/${data.upload.id}/${data.files[0].id}`); // TODO remove hard-coded val
+    const s3url = await fetch(`/_api/download/s3/${data.upload.id}/${file.file.id}`);
 
     if (!s3url.ok) {
       // TODO error
@@ -46,9 +46,10 @@
     const res = await fetch(url);
     const blob = await res.blob();
     try {
-      const decBlob = await decryptors[0].decryptFile(blob); // TODO remove hard-coded index
+      let decBlob = await file.decrypt.decryptFile(blob);
+      console.log(decBlob);
       const aElement = document.createElement('a');
-      aElement.setAttribute('download', 'test.enc'); // TODO remove hard-coded name
+      aElement.setAttribute('download', file.meta.name);
       const href = URL.createObjectURL(decBlob);
       aElement.href = href;
       aElement.setAttribute('target', '_blank');
@@ -60,11 +61,7 @@
   };
 </script>
 
-<button class="text-white" on:click={handleDownload}>here</button>
-<span class="fiv-viv fiv-icon-pdf"></span>
-<span>{@html getFileTypeIcon('text').icon}</span>
-
-<div class="mx-auto max-w-2xl rounded-md bg-zinc-800 px-6 lg:px-8">
+<div class="mx-auto mt-12 max-w-2xl rounded-md bg-zinc-800 px-6 lg:px-8">
   <ul role="list" class="divide-y divide-zinc-700">
     {#if files.length}
       {#each files as file}
@@ -74,11 +71,23 @@
               {@html file.meta.type ? getFileTypeIcon(file.meta.type).icon : ''}
             </div>
             <div class="min-w-0 flex-auto">
-              <p class="text-sm font-semibold leading-6 text-white">{file.meta.name}</p>
+              <p class="text-sm font-semibold leading-6 text-white">
+                <a
+                  on:click|preventDefault={() => {
+                    handleDownload(file);
+                  }}
+                  class="hover:underline"
+                  href={$page.url.href}>{file.meta.name}</a>
+              </p>
               <p class="mt-1 truncate text-xs leading-5 text-zinc-500">{filesize(Number(file.file.size))}</p>
             </div>
           </div>
-          <a href="#" class="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-white/20">Download</a>
+          <a
+            on:click|preventDefault={() => {
+              handleDownload(file);
+            }}
+            href={$page.url.href}
+            class="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-white/20">Download</a>
         </li>
       {/each}
     {:else}
