@@ -4,11 +4,14 @@
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
   import { UppyEncryptPlugin, UppyEncrypt } from 'uppy-encrypt';
-  import { PUBLIC_UPLOAD_EXPIRE_OPTIONS, PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS } from '$env/static/public';
+  import { filesize } from 'filesize';
+  import { PUBLIC_UPLOAD_EXPIRE_OPTIONS, PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS, PUBLIC_MAX_UPLOAD_FILES, PUBLIC_MAX_UPLOAD_SIZE } from '$env/static/public';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
 
+  const maxUploadFiles = Number(PUBLIC_MAX_UPLOAD_FILES);
+  const maxUploadSize = Number(PUBLIC_MAX_UPLOAD_SIZE) * 1_000_000;
   const expireOptions = JSON.parse(PUBLIC_UPLOAD_EXPIRE_OPTIONS);
   const maxDownloadOptions = JSON.parse(PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS);
 
@@ -33,13 +36,22 @@
 
   let uppy: Uppy;
   onMount(async () => {
-    const uppy = new Uppy()
+    const uppy = new Uppy({
+      allowMultipleUploadBatches: false,
+      restrictions: {
+        maxFileSize: maxUploadSize,
+        maxTotalFileSize: maxUploadSize,
+        maxNumberOfFiles: maxUploadFiles,
+      },
+    })
       .use(UppyEncryptPlugin)
       .use(Dashboard, {
         width: 2432,
         theme: 'dark',
         inline: true,
         target: '#uppy-dashboard',
+        showProgressDetails: true,
+        note: `${filesize(maxUploadSize)} max upload size. Up to ${maxUploadFiles} files per upload.`,
         proudlyDisplayPoweredByUppy: false,
       })
       .use(AwsS3Multipart, {
