@@ -51,7 +51,8 @@
         inline: true,
         target: '#uppy-dashboard',
         showProgressDetails: true,
-        note: `${filesize(maxUploadSize)} max upload size. Up to ${maxUploadFiles} files per upload.`,
+        disableThumbnailGenerator: true,
+        note: `${filesize(maxUploadSize, { round: 1 })} max upload size. Up to ${maxUploadFiles} files per upload.`,
         proudlyDisplayPoweredByUppy: false,
       })
       .use(AwsS3Multipart, {
