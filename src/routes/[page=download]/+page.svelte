@@ -3,6 +3,7 @@
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+  import { fade } from 'svelte/transition';
   import { getFileTypeIcon } from '$lib';
   import { filesize } from 'filesize';
   import { ModalConfirm } from '$lib/components';
@@ -16,7 +17,6 @@
     decryptor: UppyDecrypt;
     meta: DecryptedMetaData;
     decrypted?: Blob;
-    canceled: boolean;
   }
 
   const files: FileDownload[] = [];
@@ -38,14 +38,13 @@
         const file = data.files[i];
         const decryptor = new UppyDecrypt(password, file.salt, file.header);
         const meta = decryptor.getDecryptedMetaData(file.meta_header, file.meta_data);
-        files[i] = { file, decryptor, meta, canceled: false };
+        files[i] = { file, decryptor, meta };
       }
     });
   }
 
-  const cancelDownload = (file: FileDownload) => {
+  const cancelDownload = () => {
     reader?.cancel();
-    file.canceled = true;
     downloading = false;
   };
 
@@ -82,6 +81,11 @@
       downloading = false;
       progress = 0;
 
+      // Download canceled
+      if (received < file.file.size) {
+        return;
+      }
+
       // Re-assemble download chunks so they can be blobbed
       let chunksAll = new Uint8Array(received);
       let position = 0;
@@ -90,18 +94,13 @@
         position += chunk.length;
       }
 
-      // Don't decrypt if we canceled the download
-      if (!file.canceled) {
-        // Decrypt blob chunks (that's nasty)
-        try {
-          file.decrypted = await file.decryptor.decryptFile(new Blob([chunksAll]));
-        } catch (e) {
-          // TODO error
-          console.log(e);
-        }
+      // Decrypt blob chunks (that's nasty)
+      try {
+        file.decrypted = await file.decryptor.decryptFile(new Blob([chunksAll]));
+      } catch (e) {
+        // TODO error
+        console.log(e);
       }
-    } else {
-      file.canceled = false; // reset
     }
 
     if (file.decrypted) {
@@ -134,11 +133,36 @@
 {/if}
 
 {#if downloading}
-  <div class="mb-4 h-1.5 w-full rounded-full bg-zinc-700">
-    <div class="h-1.5 rounded-full bg-blue-600" style="width: {progress}%"></div>
+  <!-- Notification -->
+  <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6">
+    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+      <div transition:fade class="pointer-events-auto flex w-full max-w-md rounded-lg bg-zinc-900 shadow-lg ring-1 ring-black ring-opacity-5">
+        <div class="w-0 flex-1 p-4">
+          <div class="flex items-start">
+            <div class="flex-shrink-0 pt-0.5">
+              <svg class="animate-pulse" xmlns="http://www.w3.org/2000/svg" height="32" width="32" viewBox="0 0 512 512"
+                ><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path
+                  fill="#ffffff"
+                  d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM376.9 294.6c4.5-4.2 7.1-10.1 7.1-16.3c0-12.3-10-22.3-22.3-22.3H304V160c0-17.7-14.3-32-32-32l-32 0c-17.7 0-32 14.3-32 32v96H150.3C138 256 128 266 128 278.3c0 6.2 2.6 12.1 7.1 16.3l107.1 99.9c3.8 3.5 8.7 5.5 13.8 5.5s10.1-2 13.8-5.5l107.1-99.9z" /></svg>
+            </div>
+            <div class="ml-3 w-0 flex-1">
+              <p class="text-sm font-medium text-white">Downloading&hellip;</p>
+              <!-- Progress bar -->
+              <div class="mt-2 h-1.5 w-full rounded-full bg-zinc-700">
+                <div class="h-1.5 rounded-full bg-blue-600" style="width: {progress}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex border-l border-zinc-800">
+          <button
+            type="button"
+            class="flex w-full items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            on:click|preventDefault={cancelDownload}>Cancel</button>
+        </div>
+      </div>
+    </div>
   </div>
-{:else}
-  <div class="h-1.5"></div>
 {/if}
 
 <div class="mx-auto mt-12 max-w-2xl rounded-md bg-zinc-800 px-6 lg:px-8">
