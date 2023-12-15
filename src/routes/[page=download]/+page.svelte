@@ -2,7 +2,7 @@
   import { UppyDecrypt, uppyEncryptReady, type DecryptedMetaData } from 'uppy-encrypt';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
-  import { goto } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
   import { fade } from 'svelte/transition';
   import { getFileTypeIcon } from '$lib';
   import { filesize } from 'filesize';
@@ -19,11 +19,22 @@
     decrypted?: Blob;
   }
 
-  const files: FileDownload[] = [];
+  let files: FileDownload[] = [];
   let showDownloadWarning = PUBLIC_SHOW_DOWNLOAD_WARNING === 'true' ? true : false;
   let downloading = false;
   let progress = 0;
   let reader: ReadableStreamDefaultReader | null = null;
+
+  // Updates file list as necessary
+  const invalidateFiles = (dataFiles: typeof data.files) => {
+    // TODO if dataFiles.length === 0, error
+    if (dataFiles.length < files.length) {
+      // we need to remove file(s)
+      const ids = dataFiles.map((item) => item.id);
+      files = files.filter((file) => ids.includes(file.file.id));
+    }
+  };
+  $: invalidateFiles(data.files);
 
   onMount(async () => {
     await uppyEncryptReady();
@@ -59,6 +70,7 @@
       });
       if (!s3url.ok) {
         // TODO error
+        invalidateAll();
         return;
       }
       const { url } = await s3url.json();
@@ -66,7 +78,10 @@
 
       // We create a reader so we can track the download status
       reader = res.body?.getReader() || null;
-      if (!reader) return; // TODO error
+      if (!reader) {
+        invalidateAll();
+        return; // TODO error
+      }
       const chunks = [];
       let received = 0;
       while (true) {
@@ -83,6 +98,7 @@
 
       // Download canceled
       if (received < file.file.size) {
+        invalidateAll();
         return;
       }
 
@@ -99,7 +115,9 @@
         file.decrypted = await file.decryptor.decryptFile(new Blob([chunksAll]));
       } catch (e) {
         // TODO error
+        invalidateAll();
         console.log(e);
+        return;
       }
     }
 
@@ -113,6 +131,7 @@
       aElement.click();
       URL.revokeObjectURL(href);
     }
+    invalidateAll();
   };
 </script>
 
