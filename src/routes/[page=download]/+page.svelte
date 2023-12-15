@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { UppyDecrypt, onUppyEncryptReady, type DecryptedMetaData } from 'uppy-encrypt';
-  import { browser } from '$app/environment';
+  import { UppyDecrypt, uppyEncryptReady, type DecryptedMetaData } from 'uppy-encrypt';
+  import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { fade } from 'svelte/transition';
@@ -25,23 +25,23 @@
   let progress = 0;
   let reader: ReadableStreamDefaultReader | null = null;
 
-  if (browser) {
+  onMount(async () => {
+    await uppyEncryptReady();
+    // Verify password
     const password = window.location.hash.substring(1);
-    onUppyEncryptReady(() => {
-      // Verify password
-      if (!UppyDecrypt.verifyPassword(data.upload.hash, password)) {
-        // TODO error
-      }
+    if (!UppyDecrypt.verifyPassword(data.upload.hash, password)) {
+      // TODO error
+      return;
+    }
 
-      // Decrypt meta-data
-      for (const i in data.files) {
-        const file = data.files[i];
-        const decryptor = new UppyDecrypt(password, file.salt, file.header);
-        const meta = decryptor.getDecryptedMetaData(file.meta_header, file.meta_data);
-        files[i] = { file, decryptor, meta };
-      }
-    });
-  }
+    // Decrypt meta-data
+    for (const i in data.files) {
+      const file = data.files[i];
+      const decryptor = new UppyDecrypt(password, file.salt, file.header);
+      const meta = decryptor.getDecryptedMetaData(file.meta_header, file.meta_data);
+      files[i] = { file, decryptor, meta };
+    }
+  });
 
   const cancelDownload = () => {
     reader?.cancel();
