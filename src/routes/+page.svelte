@@ -164,7 +164,7 @@
   });
 </script>
 
-<div class="bg-zinc-900 py-12">
+<div class="py-12">
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto sm:text-center">
       <h2 class="text-base font-semibold leading-7 text-blue-400">Free, ephemeral, <a href="#" target="_blank" class="underline">open-source</a></h2>
@@ -220,7 +220,7 @@
   </div>
 </div>
 
-<div class="bg-zinc-900">
+<div>
   <div class="mx-auto max-w-7xl divide-y divide-zinc-400/10 px-6 py-12 lg:px-8">
     <h2 class="text-2xl font-bold leading-10 tracking-tight text-white">Frequently asked questions</h2>
     <dl class="mt-10 space-y-8 divide-y divide-zinc-400/10">

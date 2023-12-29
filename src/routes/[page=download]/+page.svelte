@@ -194,7 +194,7 @@
               {@html file.meta.type ? getFileTypeIcon(file.meta.type).icon : ''}
             </div>
             <div class="min-w-0 flex-auto">
-              <p class="text-sm font-semibold leading-6 text-white">
+              <p class="break-all text-sm font-semibold leading-6 text-white">
                 <a
                   on:click|preventDefault={() => {
                     handleDownload(file);

@@ -5,7 +5,7 @@
   const year = new Date().getFullYear();
 </script>
 
-<nav class="bg-zinc-800">
+<nav class="bg-zinc-800 opacity-80">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 justify-between">
       <div class="flex">
@@ -69,7 +69,7 @@
     </div>
   </div>
 </nav>
-<main class="bg-zinc-900">
+<main>
   <slot />
 </main>
 
@@ -87,7 +87,7 @@
   }
   ```
 -->
-<footer class="bg-zinc-900" aria-labelledby="footer-heading">
+<footer aria-labelledby="footer-heading">
   <h2 id="footer-heading" class="sr-only">Footer</h2>
   <div class="mx-auto max-w-7xl px-6 pb-8 pt-20 lg:px-8">
     <div class="mt-16 border-t border-white/10 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
