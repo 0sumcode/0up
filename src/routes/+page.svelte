@@ -1,5 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fade } from 'svelte/transition';
+  import { linear } from 'svelte/easing';
+  import { NewUploadStore } from '$lib/stores';
   import Dashboard from '@uppy/dashboard';
   import { Uppy, type UppyFile } from '@uppy/core';
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
@@ -14,6 +17,11 @@
   const maxUploadSize = Number(PUBLIC_MAX_UPLOAD_SIZE) * 1_000_000;
   const expireOptions = JSON.parse(PUBLIC_UPLOAD_EXPIRE_OPTIONS);
   const maxDownloadOptions = JSON.parse(PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS);
+
+  $NewUploadStore.showButton = false;
+  $NewUploadStore.handler = () => {
+    url = null;
+  };
 
   let expires: number,
     downloads: number,
@@ -173,72 +181,73 @@
         const data = await response.json();
         url = `${window.location.protocol}//${window.location.host}/${data.upload.replace(/-/g, '')}#${result.successful[0].meta.password}`;
         window.scrollTo(0, 0);
+        $NewUploadStore.showButton = true;
 
-        // Generate new password for future upload
+        // Reset uppy & generate new password for future upload
+        uppy.cancelAll();
         uppy.getPlugin('UppyEncryptPlugin')?.setOptions({ password: UppyEncrypt.generatePassword() });
       });
   });
 </script>
 
-{#if !url}
-  <div class="py-12">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div class="mx-auto sm:text-center">
-        <h2 class="text-base font-semibold leading-7 text-blue-400">Free, ephemeral, <a href="#" target="_blank" class="underline">open-source</a></h2>
-        <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl"><span class="font-audiowide">0</span>-knowledge encrypted file uploads</p>
-        <!-- <p class="mt-6 text-lg leading-8 text-zinc-300">
+<div class="py-12 {url ? 'hidden' : 'visible'}">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto sm:text-center">
+      <h2 class="text-base font-semibold leading-7 text-blue-400">Free, ephemeral, <a href="#" target="_blank" class="underline">open-source</a></h2>
+      <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl"><span class="font-audiowide">0</span>-knowledge encrypted file uploads</p>
+      <!-- <p class="mt-6 text-lg leading-8 text-zinc-300">
         Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis.
       </p> -->
-      </div>
     </div>
-    <div class="relative overflow-hidden pt-12">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8">
-        <div id="uppy-dashboard"></div>
-        <div class="flex flex-col lg:flex-row">
-          <!-- First Column -->
-          <div class="lg:w-1/2">
-            <div class="p-2 text-zinc-300">
-              Expire after:
-              <select
-                bind:value={expires}
-                id="expires"
-                name="expires"
-                class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
-                {#each expireOptions as value}
-                  <option {value}>{value} Hour{value > 1 ? 's' : ''}</option>
-                {/each}
-              </select>
-              or
-              <select
-                bind:value={downloads}
-                id="downloads"
-                name="downloads"
-                class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
-                {#each maxDownloadOptions as value}
-                  <option {value}>{value} Download{value > 1 ? 's' : ''}</option>
-                {/each}
-              </select>
-            </div>
+  </div>
+  <div class="relative overflow-hidden pt-12">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div id="uppy-dashboard"></div>
+      <div class="flex flex-col lg:flex-row">
+        <!-- First Column -->
+        <div class="lg:w-1/2">
+          <div class="p-2 text-zinc-300">
+            Expire after:
+            <select
+              bind:value={expires}
+              id="expires"
+              name="expires"
+              class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
+              {#each expireOptions as value}
+                <option {value}>{value} Hour{value > 1 ? 's' : ''}</option>
+              {/each}
+            </select>
+            or
+            <select
+              bind:value={downloads}
+              id="downloads"
+              name="downloads"
+              class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
+              {#each maxDownloadOptions as value}
+                <option {value}>{value} Download{value > 1 ? 's' : ''}</option>
+              {/each}
+            </select>
           </div>
-          <!-- Second Column -->
-          <div class="lg:w-1/2">
-            <div class="p-2">
-              <!-- Content for the second column -->
-              <p class="text-right text-xs leading-6 text-zinc-300">
-                Use of this service indicates acceptance of the <a href="#" class="font-semibold text-white">terms of service</a>.
-              </p>
-              <p class="text-right text-xs leading-6 text-zinc-300">
-                We care about your data. Read our <a href="#" class="font-semibold text-white">privacy policy</a>.
-              </p>
-            </div>
+        </div>
+        <!-- Second Column -->
+        <div class="lg:w-1/2">
+          <div class="p-2">
+            <!-- Content for the second column -->
+            <p class="text-right text-xs leading-6 text-zinc-300">
+              Use of this service indicates acceptance of the <a href="#" class="font-semibold text-white">terms of service</a>.
+            </p>
+            <p class="text-right text-xs leading-6 text-zinc-300">
+              We care about your data. Read our <a href="#" class="font-semibold text-white">privacy policy</a>.
+            </p>
           </div>
         </div>
       </div>
     </div>
   </div>
-{:else}
-  <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-    <h1 class="mt-2 text-center text-3xl font-bold tracking-tight text-white">Your file(s) have been encrypted & uploaded!</h1>
+</div>
+{#if url}
+  <div transition:fade={{ duration: 300, easing: linear }} class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+    <h1 class="mt-2 text-center text-3xl font-bold tracking-tight text-white">Your file(s) have been encrypted &amp; uploaded!</h1>
     <p class="mx-auto mt-10 max-w-xl text-center text-lg leading-8 text-zinc-300">Copy &amp; share the link below:</p>
     <form class="mx-auto mt-2 flex max-w-xl gap-x-4">
       <label for="share-input" class="sr-only">Share</label>
@@ -250,6 +259,7 @@
         readonly
         class="min-w-0 flex-auto rounded-md border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6" />
       <button
+        type="button"
         on:click|preventDefault={copyLink}
         class="inline-flex items-center gap-x-1.5 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
         <svg class="-ml-0.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"

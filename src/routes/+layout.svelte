@@ -1,8 +1,19 @@
 <script lang="ts">
+  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
+  import { fade } from 'svelte/transition';
+  import { linear } from 'svelte/easing';
   import { PUBLIC_ORGANIZATION_NAME } from '$env/static/public';
+  import { NewUploadStore } from '$lib/stores';
   import '../app.css';
 
   const year = new Date().getFullYear();
+
+  // New upload nav button handler
+  const newUpload = () => {
+    if ($page.url.pathname !== '/') goto('/');
+    else $NewUploadStore.handler();
+  };
 </script>
 
 <nav class="bg-zinc-800 opacity-80">
@@ -47,14 +58,18 @@
       </div>
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <button
-            type="button"
-            class="relative inline-flex items-center gap-x-1.5 rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500">
-            <svg class="-ml-0.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-            </svg>
-            New Job
-          </button>
+          {#if $NewUploadStore.showButton}
+            <button
+              type="button"
+              on:click|preventDefault={newUpload}
+              transition:fade={{ duration: 300, easing: linear }}
+              class="relative inline-flex items-center gap-x-1.5 rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500">
+              <svg class="-ml-0.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+              </svg>
+              New Upload
+            </button>
+          {/if}
         </div>
       </div>
     </div>

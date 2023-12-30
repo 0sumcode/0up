@@ -8,8 +8,10 @@
   import { filesize } from 'filesize';
   import { ModalConfirm } from '$lib/components';
   import { PUBLIC_SHOW_DOWNLOAD_WARNING } from '$env/static/public';
+  import { NewUploadStore } from '$lib/stores/NewUploadStore.js';
 
   export let data;
+  $NewUploadStore.showButton = true;
   //console.log(data);
 
   interface FileDownload {
