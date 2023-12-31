@@ -26,6 +26,8 @@
 
   let files: FileDownload[] = [];
   let showDownloadWarning = PUBLIC_SHOW_DOWNLOAD_WARNING === 'true' ? true : false;
+  let showDeleteConfirm = false;
+  let showReportConfirm = false;
   let downloading = false;
   let progress = 0;
   let reader: ReadableStreamDefaultReader | null = null;
@@ -140,12 +142,13 @@
   };
 </script>
 
+<!-- Modals-->
 {#if showDownloadWarning}
   <ModalConfirm
     title="Confirm Download"
     cancelButton="Cancel download"
     confirmButton="I know and trust the sender"
-    showX={false}
+    allowEscape={false}
     on:close={() => {
       goto('/');
     }}
@@ -154,6 +157,24 @@
     }}>
     <span class="underline">Never</span> download files from someone you don't personally know and trust!
   </ModalConfirm>
+{:else if showDeleteConfirm}
+  <ModalConfirm
+    title="Delete Upload?"
+    confirmButton="Delete"
+    on:close={() => {
+      showDeleteConfirm = false;
+    }}
+    on:confirm={() => {}}>
+    Are you sure you wish to delete this upload? You will lose access to all files. This action cannot be undone!
+  </ModalConfirm>
+{:else if showReportConfirm}
+  <ModalConfirm
+    title="Report Upload"
+    confirmButton="Report"
+    on:close={() => {
+      showReportConfirm = false;
+    }}
+    on:confirm={() => {}}>TODO</ModalConfirm>
 {/if}
 
 {#if downloading}
@@ -235,7 +256,17 @@
 <div class="mx-auto mt-2 flex max-w-2xl rounded-md">
   <div class="flex-1 text-sm italic leading-6 text-zinc-400">Expires {expiresIn}</div>
   <div>
-    <button type="button" class="rounded bg-white/10 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-white/20">Report</button>
-    <button type="button" class="rounded bg-red-600/40 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-600/20">Delete</button>
+    <button
+      type="button"
+      on:click={() => {
+        showReportConfirm = true;
+      }}
+      class="rounded bg-white/10 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-white/20">Report</button>
+    <button
+      type="button"
+      on:click={() => {
+        showDeleteConfirm = true;
+      }}
+      class="rounded bg-red-600/40 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-600/20">Delete</button>
   </div>
 </div>
