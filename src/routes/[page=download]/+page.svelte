@@ -9,10 +9,13 @@
   import { ModalConfirm } from '$lib/components';
   import { PUBLIC_SHOW_DOWNLOAD_WARNING } from '$env/static/public';
   import { NewUploadStore } from '$lib/stores/NewUploadStore.js';
+  import dayjs from 'dayjs';
+  import relativeTime from 'dayjs/plugin/relativeTime';
+  dayjs.extend(relativeTime);
 
   export let data;
   $NewUploadStore.showButton = true;
-  //console.log(data);
+  const expiresIn = dayjs().to(data.upload.expire_at);
 
   interface FileDownload {
     file: (typeof data.files)[number];
@@ -228,4 +231,11 @@
       </li>
     {/if}
   </ul>
+</div>
+<div class="mx-auto mt-2 flex max-w-2xl rounded-md">
+  <div class="flex-1 text-sm italic leading-6 text-zinc-400">Expires {expiresIn}</div>
+  <div>
+    <button type="button" class="rounded bg-white/10 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-white/20">Report</button>
+    <button type="button" class="rounded bg-red-600/40 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-600/20">Delete</button>
+  </div>
 </div>
