@@ -125,7 +125,7 @@
   <div class="mx-auto max-w-7xl px-6 pb-8 pt-20 lg:px-8">
     <div class="mt-16 border-t border-white/10 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
       <div class="flex space-x-6 md:order-2">
-        <a href="#" class="text-zinc-500 hover:text-zinc-400">
+        <a href="https://github.com/0sumcode/0up" target="_blank" class="text-zinc-500 hover:text-zinc-400">
           <span class="sr-only">GitHub</span>
           <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path
