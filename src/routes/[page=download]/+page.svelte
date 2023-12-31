@@ -31,6 +31,7 @@
   let downloading = false;
   let progress = 0;
   let reader: ReadableStreamDefaultReader | null = null;
+  let reportInput = '';
 
   // Updates file list as necessary
   const invalidateFiles = (dataFiles: typeof data.files) => {
@@ -145,6 +146,11 @@
     await fetch(`/_api/download/${data.upload.id}`, { method: 'DELETE' });
     invalidateAll();
   };
+
+  const confirmReport = async () => {
+    await fetch(`/_api/download/${data.upload.id}`, { method: 'PUT', body: JSON.stringify({ report: reportInput || 'Reported' }) });
+    invalidateAll();
+  };
 </script>
 
 <!-- Modals-->
@@ -179,7 +185,20 @@
     on:close={() => {
       showReportConfirm = false;
     }}
-    on:confirm={() => {}}>TODO</ModalConfirm>
+    on:confirm={confirmReport}>
+    Once reported, this upload will be deleted. This action cannot be reversed!
+
+    <textarea
+      rows="4"
+      name="comment"
+      id="comment"
+      placeholder="Report reason (malware, phishing, etc.)"
+      required
+      maxlength="1024"
+      bind:value={reportInput}
+      class="mt-4 block w-full rounded-md border-0 bg-zinc-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-zinc-700 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 md:w-96"
+    ></textarea>
+  </ModalConfirm>
 {/if}
 
 {#if downloading}
@@ -272,6 +291,6 @@
       on:click={() => {
         showDeleteConfirm = true;
       }}
-      class="rounded bg-red-600/40 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-600/20">Delete</button>
+      class="rounded bg-red-600/40 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-600/50">Delete</button>
   </div>
 </div>

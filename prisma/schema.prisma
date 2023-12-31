@@ -27,6 +27,7 @@ model upload {
   expire_downloads         Int       @default(1)
   expire_at                DateTime  @db.Timestamp(6)
   deleted_at               DateTime? @db.Timestamp(6)
+  report                   String?
   file_file_uploadToupload file[]    @relation("file_uploadToupload")
 
   @@index([expire_at], map: "upload_expire_at_index")
