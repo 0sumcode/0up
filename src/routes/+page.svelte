@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import { linear } from 'svelte/easing';
+  import { page } from '$app/stores';
   import { NewUploadStore } from '$lib/stores';
   import Dashboard from '@uppy/dashboard';
   import { Uppy, type UppyFile } from '@uppy/core';
@@ -179,7 +180,7 @@
 
         // Construct URL
         const data = await response.json();
-        url = `${window.location.protocol}//${window.location.host}/${data.upload.replace(/-/g, '')}#${result.successful[0].meta.password}`;
+        url = `${$page.url.protocol}//${$page.url.host}/${data.upload.replace(/-/g, '')}#${result.successful[0].meta.password}`;
         window.scrollTo(0, 0);
         $NewUploadStore.showButton = true;
 

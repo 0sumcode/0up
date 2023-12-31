@@ -16,6 +16,24 @@
   };
 </script>
 
+<svelte:head>
+  <title>0up - encrypted file sharing</title>
+  <meta name="description" content="0up is a free, open-source, encrypted file sharing service." />
+  <meta name="application-name" content="0up" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <meta property="og:title" content="0up - encrypted file sharing" />
+  <meta property="og:description" content="0up is a free, open-source, encrypted file sharing service." />
+  <meta property="og:image" content={`${$page.url.protocol}//${$page.url.host}/social-share-home.jpg`} />
+  <meta property="og:site_name" content="0up" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:title" content="0up - encrypted file sharing" />
+  <meta name="twitter:image" content={`${$page.url.protocol}//${$page.url.host}/social-share-home.jpg`} />
+  <meta name="twitter:site" content="0up_App" />
+  <meta name="twitter:card" content="summary_large_image" />
+</svelte:head>
+
 <nav class="bg-zinc-800 opacity-80">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 justify-between">
