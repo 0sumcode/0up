@@ -140,6 +140,11 @@
     }
     invalidateAll();
   };
+
+  const confirmDelete = async () => {
+    await fetch(`/_api/download/${data.upload.id}`, { method: 'DELETE' });
+    invalidateAll();
+  };
 </script>
 
 <!-- Modals-->
@@ -164,7 +169,7 @@
     on:close={() => {
       showDeleteConfirm = false;
     }}
-    on:confirm={() => {}}>
+    on:confirm={confirmDelete}>
     Are you sure you wish to delete this upload? You will lose access to all files. This action cannot be undone!
   </ModalConfirm>
 {:else if showReportConfirm}
