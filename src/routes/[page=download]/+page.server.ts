@@ -3,10 +3,6 @@ import { error } from '@sveltejs/kit';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params }) {
-  /**
-   * TODO:
-   * - Filter out any vals we don't want to send to client
-   */
   const upload = await prisma.upload.findUnique({ where: { id: params.page, expire_at: { gte: new Date() }, deleted_at: null } });
 
   if (!upload) throw error(404, 'Not found');

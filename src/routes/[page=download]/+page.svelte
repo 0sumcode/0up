@@ -134,13 +134,11 @@
         error.message = 'Decryption failed';
         error.description = 'Unable to decrypt selected file.';
         invalidateAll();
-        console.log(e);
         return;
       }
     }
 
     if (file.decrypted) {
-      console.log(file.decrypted);
       const aElement = document.createElement('a');
       aElement.setAttribute('download', file.meta.name);
       const href = URL.createObjectURL(file.decrypted);

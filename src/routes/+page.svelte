@@ -157,7 +157,6 @@
         },
       })
       .on('complete', async (result) => {
-        console.log(result);
         const files = [];
 
         if (!result.successful.length) return;
