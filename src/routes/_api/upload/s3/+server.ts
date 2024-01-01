@@ -2,11 +2,11 @@ import { json, error } from '@sveltejs/kit';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3Client, expiresIn } from '$lib/S3';
-import { PRIVATE_S3_BUCKET } from '$env/static/private';
+import { PRIVATE_S3_BUCKET, PRIVATE_S3_PREFIX } from '$env/static/private';
 
 // Get presigned URL for non-multipart upload
 export const POST = async ({ params }) => {
-  const key = `1/${crypto.randomUUID()}`;
+  const key = `${PRIVATE_S3_PREFIX}${crypto.randomUUID()}`;
 
   const url = await getSignedUrl(
     s3Client,
