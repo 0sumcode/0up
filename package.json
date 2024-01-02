@@ -44,6 +44,6 @@
     "@uppy/dashboard": "^3.7.1",
     "dayjs": "^1.11.10",
     "filesize": "^10.1.0",
-    "uppy-encrypt": "^1.0.0"
+    "uppy-encrypt": "^1.0.2"
   }
 }
