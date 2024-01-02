@@ -9,7 +9,13 @@
   import AwsS3Multipart from '@uppy/aws-s3-multipart';
   import { UppyEncryptPlugin, UppyEncrypt } from 'uppy-encrypt';
   import { filesize } from 'filesize';
-  import { PUBLIC_UPLOAD_EXPIRE_OPTIONS, PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS, PUBLIC_MAX_UPLOAD_FILES, PUBLIC_MAX_UPLOAD_SIZE } from '$env/static/public';
+  import {
+    PUBLIC_UPLOAD_EXPIRE_OPTIONS,
+    PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS,
+    PUBLIC_MAX_UPLOAD_FILES,
+    PUBLIC_MAX_UPLOAD_SIZE,
+    PUBLIC_SHOW_FAQ,
+  } from '$env/static/public';
 
   import '@uppy/core/dist/style.css';
   import '@uppy/dashboard/dist/style.css';
@@ -18,6 +24,7 @@
   const maxUploadSize = Number(PUBLIC_MAX_UPLOAD_SIZE) * 1_000_000;
   const expireOptions = JSON.parse(PUBLIC_UPLOAD_EXPIRE_OPTIONS);
   const maxDownloadOptions = JSON.parse(PUBLIC_UPLOAD_MAX_DOWNLOAD_OPTIONS);
+  const showFaq = PUBLIC_SHOW_FAQ === 'true' ? true : false;
 
   $NewUploadStore.showButton = false;
   $NewUploadStore.handler = () => {
@@ -282,78 +289,80 @@
   </div>
 {/if}
 
-<div>
-  <div class="mx-auto max-w-7xl divide-y divide-zinc-400/10 px-6 py-12 lg:px-8">
-    <h2 class="text-2xl font-bold leading-10 tracking-tight text-white">Frequently asked questions</h2>
-    <dl class="mt-10 space-y-8 divide-y divide-zinc-400/10">
-      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">
-          Can <span class="font-audiowide text-sm">0up</span> admins decrypt the files I upload?
-        </dt>
-        <dd class="mt-4 lg:col-span-7 lg:mt-0">
-          <p class="text-base leading-7 text-zinc-300">
-            No. The key required for decryption is never sent to <span class="font-audiowide text-sm">0up</span>, meaning we have no ability to decrypt your
-            uploads. Your file's meta data (file name, file type, etc) are also encrypted.
-          </p>
-        </dd>
-      </div>
+{#if showFaq}
+  <div>
+    <div class="mx-auto max-w-7xl divide-y divide-zinc-400/10 px-6 py-12 lg:px-8">
+      <h2 class="text-2xl font-bold leading-10 tracking-tight text-white">Frequently asked questions</h2>
+      <dl class="mt-10 space-y-8 divide-y divide-zinc-400/10">
+        <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+          <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">
+            Can <span class="font-audiowide text-sm">0up</span> admins decrypt the files I upload?
+          </dt>
+          <dd class="mt-4 lg:col-span-7 lg:mt-0">
+            <p class="text-base leading-7 text-zinc-300">
+              No. The key required for decryption is never sent to <span class="font-audiowide text-sm">0up</span>, meaning we have no ability to decrypt your
+              uploads. Your file's meta data (file name, file type, etc) are also encrypted.
+            </p>
+          </dd>
+        </div>
 
-      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">How does <span class="font-audiowide text-sm">0up</span> work?</dt>
-        <dd class="mt-4 lg:col-span-7 lg:mt-0">
-          <p class="text-base leading-7 text-zinc-300">
-            Your files are encrypted by your web browser, with a key that is generated on your browser. The key is never sent to <span
-              class="font-audiowide text-sm">0up</span
-            >, meaning only you and those you share the link with can download the decrypted files.
-          </p>
-        </dd>
-      </div>
+        <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+          <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">How does <span class="font-audiowide text-sm">0up</span> work?</dt>
+          <dd class="mt-4 lg:col-span-7 lg:mt-0">
+            <p class="text-base leading-7 text-zinc-300">
+              Your files are encrypted by your web browser, with a key that is generated on your browser. The key is never sent to <span
+                class="font-audiowide text-sm">0up</span
+              >, meaning only you and those you share the link with can download the decrypted files.
+            </p>
+          </dd>
+        </div>
 
-      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Could you be sneaky and take a peak at our keys?</dt>
-        <dd class="mt-4 lg:col-span-7 lg:mt-0">
-          <p class="text-base leading-7 text-zinc-300">
-            Your keys are passed as an anchor component in the URL (#YOUR_KEY_HERE). The anchor data is not sent as part of the request to the server and isn't
-            logged by the server. While that doesn't mean it's impossible for nefarious or bad code to leak the key, we're <a
-              href="https://github.com/0sumcode/0up"
-              class="underline"
-              target="_blank">open source</a> and encourage you to check our work!
-          </p>
-        </dd>
-      </div>
+        <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+          <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Could you be sneaky and take a peak at our keys?</dt>
+          <dd class="mt-4 lg:col-span-7 lg:mt-0">
+            <p class="text-base leading-7 text-zinc-300">
+              Your keys are passed as an anchor component in the URL (#YOUR_KEY_HERE). The anchor data is not sent as part of the request to the server and
+              isn't logged by the server. While that doesn't mean it's impossible for nefarious or bad code to leak the key, we're <a
+                href="https://github.com/0sumcode/0up"
+                class="underline"
+                target="_blank">open source</a> and encourage you to check our work!
+            </p>
+          </dd>
+        </div>
 
-      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">How do you make money?</dt>
-        <dd class="mt-4 lg:col-span-7 lg:mt-0">
-          <p class="text-base leading-7 text-zinc-300">
-            We don't collect or sell user data, we don't include ads, and we don't have a paid plan. So, the short answer is, we don't make money. This is
-            simply a passion project. <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Starring us on Github</a> and/or
-            <a href="#" class="underline" target="_blank">Product Hunt</a> would be much appreciated!
-          </p>
-        </dd>
-      </div>
+        <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+          <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">How do you make money?</dt>
+          <dd class="mt-4 lg:col-span-7 lg:mt-0">
+            <p class="text-base leading-7 text-zinc-300">
+              We don't collect or sell user data, we don't include ads, and we don't have a paid plan. So, the short answer is, we don't make money. This is
+              simply a passion project. <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Starring us on Github</a> and/or
+              <a href="#" class="underline" target="_blank">Product Hunt</a> would be much appreciated!
+            </p>
+          </dd>
+        </div>
 
-      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Do I have to trust you?</dt>
-        <dd class="mt-4 lg:col-span-7 lg:mt-0">
-          <p class="text-base leading-7 text-zinc-300">
-            Nope. <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Clone <span class="font-audiowide text-sm">0up</span></a> and host
-            it on your own infrastructure.
-          </p>
-        </dd>
-      </div>
+        <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+          <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">Do I have to trust you?</dt>
+          <dd class="mt-4 lg:col-span-7 lg:mt-0">
+            <p class="text-base leading-7 text-zinc-300">
+              Nope. <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Clone <span class="font-audiowide text-sm">0up</span></a> and host
+              it on your own infrastructure.
+            </p>
+          </dd>
+        </div>
 
-      <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
-        <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">What features will be added?</dt>
-        <dd class="mt-4 lg:col-span-7 lg:mt-0">
-          <p class="text-base leading-7 text-zinc-300">
-            You tell us (and see what's in the works) on <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Github</a>.
-          </p>
-        </dd>
-      </div>
-    </dl>
+        <div class="pt-8 lg:grid lg:grid-cols-12 lg:gap-8">
+          <dt class="text-base font-semibold leading-7 text-white lg:col-span-5">What features will be added?</dt>
+          <dd class="mt-4 lg:col-span-7 lg:mt-0">
+            <p class="text-base leading-7 text-zinc-300">
+              You tell us (and see what's in the works) on <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Github</a>.
+            </p>
+          </dd>
+        </div>
+      </dl>
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
   /**
