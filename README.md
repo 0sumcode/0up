@@ -20,10 +20,32 @@ In addition to the hosted version of 0up (https://0up.io), you're free to clone,
 2. A PostgreSQL database (free hosted providers like [Supabase](https://supabase.com/) work great)
 3. Node.JS 18+
 
+## Get the code
 To get started hosting your own instance of 0up, clone (or fork and clone) this repo.
 
 ```bash
 git clone https://github.com/0sumcode/0up.git
+cd 0up
+npm i
+```
+## Configuration
+
+Copy `.env.example` to `.env`. Then open and edit the `.env` file and configure the database and S3 parameters accordingly.
+
+```bash
+cp .env.example .env
 ```
 
-TODO more coming soon...
+## Starting a dev instance
+
+Now that all your configuration parameters have been set, you should be able to test your instance locally. The dev instance makes it easy to test and make customizations.
+
+```bash
+npm run dev
+```
+
+## Deploying to production
+
+Your 0up instance can easily be deployed to any hosting platform including [Vercel](https://vercel.com/docs/getting-started-with-vercel) and [Cloudflare Workers](https://developers.cloudflare.com/workers/get-started/guide/). We recommend reading their guides to get started with a production deployment.
+
+TODO - more coming soon...
