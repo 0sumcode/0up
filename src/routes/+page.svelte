@@ -72,6 +72,7 @@
       .use(UppyEncryptPlugin)
       .use(Dashboard, {
         width: 2432,
+        height: 400,
         theme: 'dark',
         inline: true,
         target: '#uppy-dashboard',
@@ -193,11 +194,10 @@
 <div class="py-12 {url ? 'hidden' : 'visible'}">
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto sm:text-center">
-      <h2 class="text-base font-semibold leading-7 text-blue-400">Free, ephemeral, <a href="#" target="_blank" class="underline">open-source</a></h2>
+      <h2 class="text-base font-semibold leading-7 text-blue-400">
+        Free, ephemeral, <a href="https://github.com/0sumcode/0up" target="_blank" class="underline">open-source</a>
+      </h2>
       <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl"><span class="font-audiowide">0</span>-knowledge encrypted file uploads</p>
-      <!-- <p class="mt-6 text-lg leading-8 text-zinc-300">
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis.
-      </p> -->
     </div>
   </div>
   <div class="relative overflow-hidden pt-12">
@@ -206,13 +206,13 @@
       <div class="flex flex-col lg:flex-row">
         <!-- First Column -->
         <div class="lg:w-1/2">
-          <div class="p-2 text-zinc-300">
-            Expire after:
+          <div class="pt-2 text-xs text-zinc-300 md:text-base">
+            Expire in:
             <select
               bind:value={expires}
               id="expires"
               name="expires"
-              class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
+              class="mx-1 rounded-md border-0 bg-white/5 py-1.5 text-xs text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 md:mx-2 md:text-base [&_*]:text-black">
               {#each expireOptions as value}
                 <option {value}>{value} Hour{value > 1 ? 's' : ''}</option>
               {/each}
@@ -222,7 +222,7 @@
               bind:value={downloads}
               id="downloads"
               name="downloads"
-              class="mx-2 rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 [&_*]:text-black">
+              class="mx-1 rounded-md border-0 bg-white/5 py-1.5 text-xs text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 md:mx-2 md:text-base [&_*]:text-black">
               {#each maxDownloadOptions as value}
                 <option {value}>{value} Download{value > 1 ? 's' : ''}</option>
               {/each}
@@ -231,13 +231,13 @@
         </div>
         <!-- Second Column -->
         <div class="lg:w-1/2">
-          <div class="p-2">
+          <div class="py-2">
             <!-- Content for the second column -->
-            <p class="text-right text-xs leading-6 text-zinc-300">
-              Use of this service indicates acceptance of the <a href="#" class="font-semibold text-white">terms of service</a>.
+            <p class="text-center text-xs leading-6 text-zinc-400 lg:text-right">
+              Uploading indicates acceptance of the <a href="#" class="font-semibold text-zinc-200">terms of service</a>.
             </p>
-            <p class="text-right text-xs leading-6 text-zinc-300">
-              We care about your data. Read our <a href="#" class="font-semibold text-white">privacy policy</a>.
+            <p class="text-center text-xs leading-6 text-zinc-400 lg:text-right">
+              We care about your data. Read our <a href="#" class="font-semibold text-zinc-200">privacy policy</a>.
             </p>
           </div>
         </div>

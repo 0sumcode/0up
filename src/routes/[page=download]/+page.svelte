@@ -245,64 +245,66 @@
 {#if error.message}
   <Error title={error.message}>{error.description}</Error>
 {:else}
-  <div class="mx-auto mt-12 max-w-2xl rounded-md bg-zinc-800 px-6 lg:px-8">
-    <ul role="list" class="divide-y divide-zinc-700">
-      {#if files.length}
-        {#each files as file}
-          <li class="flex items-center justify-between gap-x-6 py-5">
+  <div class="px-4">
+    <div class="mx-auto mt-12 max-w-2xl rounded-md bg-zinc-800 px-6 lg:px-8">
+      <ul role="list" class="divide-y divide-zinc-700">
+        {#if files.length}
+          {#each files as file}
+            <li class="flex items-center justify-between gap-x-6 py-5">
+              <div class="flex min-w-0 gap-x-4">
+                <div class="h-12 w-12 flex-none">
+                  {@html file.meta.type ? getFileTypeIcon(file.meta.type).icon : ''}
+                </div>
+                <div class="min-w-0 flex-auto">
+                  <p class="break-all text-sm font-semibold leading-6 text-white">
+                    <a
+                      on:click|preventDefault={() => {
+                        handleDownload(file);
+                      }}
+                      class="hover:underline"
+                      href={$page.url.href}>{file.meta.name}</a>
+                  </p>
+                  <p class="mt-1 truncate text-xs leading-5 text-zinc-500">{filesize(Number(file.file.size))}</p>
+                </div>
+              </div>
+              <button
+                on:click|preventDefault={() => {
+                  handleDownload(file);
+                }}
+                disabled={downloading}
+                class="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-white/20 disabled:opacity-50">Download</button>
+            </li>
+          {/each}
+        {:else}
+          <li class="flex animate-pulse items-center justify-between gap-x-6 py-5">
             <div class="flex min-w-0 gap-x-4">
-              <div class="h-12 w-12 flex-none">
-                {@html file.meta.type ? getFileTypeIcon(file.meta.type).icon : ''}
+              <div class="flex-none">
+                {@html getFileTypeIcon('application/octet-stream').icon}
               </div>
               <div class="min-w-0 flex-auto">
-                <p class="break-all text-sm font-semibold leading-6 text-white">
-                  <a
-                    on:click|preventDefault={() => {
-                      handleDownload(file);
-                    }}
-                    class="hover:underline"
-                    href={$page.url.href}>{file.meta.name}</a>
-                </p>
-                <p class="mt-1 truncate text-xs leading-5 text-zinc-500">{filesize(Number(file.file.size))}</p>
+                <p class="text-sm font-semibold leading-6 text-white">Loading files&hellip;</p>
               </div>
             </div>
-            <button
-              on:click|preventDefault={() => {
-                handleDownload(file);
-              }}
-              disabled={downloading}
-              class="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-white/20 disabled:opacity-50">Download</button>
           </li>
-        {/each}
-      {:else}
-        <li class="flex animate-pulse items-center justify-between gap-x-6 py-5">
-          <div class="flex min-w-0 gap-x-4">
-            <div class="flex-none">
-              {@html getFileTypeIcon('application/octet-stream').icon}
-            </div>
-            <div class="min-w-0 flex-auto">
-              <p class="text-sm font-semibold leading-6 text-white">Loading files&hellip;</p>
-            </div>
-          </div>
-        </li>
-      {/if}
-    </ul>
-  </div>
-  <div class="mx-auto mt-2 flex max-w-2xl rounded-md">
-    <div class="flex-1 text-sm italic leading-6 text-zinc-400">Expires {expiresIn}</div>
-    <div>
-      <button
-        type="button"
-        on:click={() => {
-          showReportConfirm = true;
-        }}
-        class="rounded bg-white/10 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-white/20">Report</button>
-      <button
-        type="button"
-        on:click={() => {
-          showDeleteConfirm = true;
-        }}
-        class="rounded bg-red-600/40 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-600/50">Delete</button>
+        {/if}
+      </ul>
+    </div>
+    <div class="mx-auto mt-2 flex max-w-2xl rounded-md">
+      <div class="flex-1 text-sm italic leading-6 text-zinc-400">Expires {expiresIn}</div>
+      <div>
+        <button
+          type="button"
+          on:click={() => {
+            showReportConfirm = true;
+          }}
+          class="rounded bg-white/10 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-white/20">Report</button>
+        <button
+          type="button"
+          on:click={() => {
+            showDeleteConfirm = true;
+          }}
+          class="rounded bg-red-600/40 px-2 py-1 text-sm font-semibold text-white shadow-sm hover:bg-red-600/50">Delete</button>
+      </div>
     </div>
   </div>
 {/if}
