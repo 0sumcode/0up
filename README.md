@@ -1,38 +1,29 @@
-# create-svelte
+## What is 0up?
+[0up](https://0up.io) is a zero-knowledge, open-source, encrypted file sharing service. 
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+## What is zero-knowledge?
+From [Wikipedia](https://en.wikipedia.org/wiki/Zero-knowledge_service): Zero-knowledge refers to an online service that stores, transfers or manipulates data in a way that maintains a high level of confidentiality, where the data is only accessible to the data's owner (the client), and not to the service provider.
 
-## Creating a project
+## How 0up works
 
-If you're seeing this, you've probably already done this step. Congrats!
+1. Files are encrypted browser-side before being uploaded to an S3 compatible storage service.
+2. A shareable link is generated with the decryption key as part of the anchor component (`#`) of the URL. (Anchor components are never sent to the server and therefore the decryption key always remains with the client.)
+3. Using the generated link, files can be downloaded and decrypted browser-side.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+# Host your own instance of 0up
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+In addition to the hosted version of 0up (https://0up.io), you're free to clone, customize, and host 0up in your own environment.
 
-## Developing
+## What you'll need:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+1. An account with an S3-compatible storage service. We recommend [Backblaze B2](https://www.backblaze.com/cloud-storage-v1)
+2. A PostgreSQL database (free hosted providers like [Supabase](https://supabase.com/) work great)
+3. Node.JS 18+
 
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
+To get started hosting your own instance of 0up, clone (or fork and clone) this repo.
 
 ```bash
-npm run build
+git clone https://github.com/0sumcode/0up.git
 ```
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+TODO more coming soon...
