@@ -52,7 +52,7 @@ your-bucket-name allPrivate
 
 ## Create a PostgreSQL database
 
-> TODO
+Create a PostgreSQL database, making note of the credentials (user, password, host, database name) as we'll need those during configuration. If you're looking for a free and easy PostgreSQL option, see [Supabase](https://supabase.com/).
 
 ## Get the code
 To get started hosting your own instance of 0up, clone (or fork and clone) this repo.
