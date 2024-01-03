@@ -40,6 +40,8 @@ We'll create a prefix of `1/` and apply a 1-day lifecycle policy to it.
 
 ### Enable CORS
 
+CORS must be enabled on your S3 bucket to allow uploads and downloads. For B2, this requires [installing the B2 CLI](https://www.backblaze.com/docs/cloud-storage-command-line-tools) (the `CORS Rules` option in the B2 web interface will not suffice for our purposes). 
+
 > TODO
 
 ## Create a PostgreSQL database
