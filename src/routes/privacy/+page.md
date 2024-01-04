@@ -6,6 +6,9 @@ title: Privacy Policy - 0up
 <script lang=ts>
   import { PUBLIC_ORGANIZATION_NAME, PUBLIC_ORGANIZATION_CONTACT } from "$env/static/public";
   import { page } from '$app/stores';
+  import { NewUploadStore } from '$lib/stores';
+
+  $NewUploadStore.showButton = true;
 
   const site  = `${$page.url.protocol}//${$page.url.host}`;
 </script>
