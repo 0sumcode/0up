@@ -70,6 +70,12 @@ Copy `.env.example` to `.env`. Then open and edit the `.env` file and configure 
 cp .env.example .env
 ```
 
+Next, deploy the database schema:
+
+```bash
+npx prisma migrate deploy
+```
+
 ## Starting a dev instance
 
 Now that all your configuration parameters have been set, you should be able to test your instance locally. The dev instance makes it easy to test and make customizations.
@@ -81,5 +87,3 @@ npm run dev
 ## Deploying to production
 
 Your 0up instance can easily be deployed to any hosting platform including [Vercel](https://vercel.com/docs/getting-started-with-vercel) and [Cloudflare Workers](https://developers.cloudflare.com/workers/get-started/guide/). We recommend reading their guides to get started with a production deployment.
-
-TODO - more coming soon...
