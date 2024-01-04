@@ -40,3 +40,7 @@ ALTER TABLE "file" ADD CONSTRAINT file_salt_check CHECK (length(salt) < 1024);
 ALTER TABLE "file" ADD CONSTRAINT file_header_check CHECK (length(header) < 1024);
 ALTER TABLE "file" ADD CONSTRAINT meta_header_check CHECK (length(meta_header) < 1024);
 ALTER TABLE "file" ADD CONSTRAINT meta_data_check CHECK (length(meta_data) < 1024);
+
+ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "file" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "upload" ENABLE ROW LEVEL SECURITY;
