@@ -17,7 +17,6 @@
 </script>
 
 <svelte:head>
-  <title>0up - encrypted file sharing</title>
   <meta name="description" content="0up is a free, open-source, encrypted file sharing service." />
   <meta name="application-name" content="0up" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -83,8 +82,8 @@
       <p class="mt-8 text-xs leading-5 text-zinc-400 md:order-1 md:mt-0">
         &copy; {year}
         {PUBLIC_ORGANIZATION_NAME}. All rights reserved. |
-        <a href="#" class="font-semibold text-white">Privacy Policy</a> |
-        <a href="#" class="font-semibold text-white">Terms of Service</a>
+        <a href="/privacy" class="font-semibold text-white">Privacy Policy</a> |
+        <a href="/terms" class="font-semibold text-white">Terms of Service</a>
       </p>
     </div>
   </div>

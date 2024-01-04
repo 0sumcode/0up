@@ -198,6 +198,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>0up - encrypted file sharing</title>
+</svelte:head>
+
 <div class="py-12 {url ? 'hidden' : 'visible'}">
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto sm:text-center">
@@ -241,10 +245,10 @@
           <div class="py-2">
             <!-- Content for the second column -->
             <p class="text-center text-xs leading-6 text-zinc-400 lg:text-right">
-              Uploading indicates acceptance of the <a href="#" class="font-semibold text-zinc-200">terms of service</a>.
+              Uploading indicates acceptance of the <a href="/terms" class="font-semibold text-zinc-200">terms of service</a>.
             </p>
             <p class="text-center text-xs leading-6 text-zinc-400 lg:text-right">
-              We care about your data. Read our <a href="#" class="font-semibold text-zinc-200">privacy policy</a>.
+              We care about your data. Read our <a href="/privacy" class="font-semibold text-zinc-200">privacy policy</a>.
             </p>
           </div>
         </div>
@@ -335,8 +339,7 @@
           <dd class="mt-4 lg:col-span-7 lg:mt-0">
             <p class="text-base leading-7 text-zinc-300">
               We don't collect or sell user data, we don't include ads, and we don't have a paid plan. So, the short answer is, we don't make money. This is
-              simply a passion project. <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Starring us on Github</a> and/or
-              <a href="#" class="underline" target="_blank">Product Hunt</a> would be much appreciated!
+              simply a passion project. <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Starring us on Github</a> would be much appreciated!
             </p>
           </dd>
         </div>

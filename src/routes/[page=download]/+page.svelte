@@ -161,6 +161,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>0up - encrypted file sharing</title>
+</svelte:head>
+
 <!-- Modals-->
 {#if showDownloadWarning}
   <ModalConfirm
