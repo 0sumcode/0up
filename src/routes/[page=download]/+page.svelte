@@ -139,6 +139,7 @@
       }
     }
 
+    await invalidateAll();
     if (file.decrypted) {
       const aElement = document.createElement('a');
       aElement.setAttribute('download', file.meta.name);
@@ -148,7 +149,6 @@
       aElement.click();
       URL.revokeObjectURL(href);
     }
-    invalidateAll();
   };
 
   const confirmDelete = async () => {
