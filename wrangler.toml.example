@@ -1,0 +1,16 @@
+name = "<your-service-name>"
+account_id = "<your-account-id>"
+
+main = "./.cloudflare/worker.js"
+site.bucket = "./.cloudflare/public"
+
+build.command = "npm run build"
+
+compatibility_date = "2021-11-12"
+workers_dev = true
+
+node_compat = true # required for database drivers to function
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "" # the ID associated with the Hyperdrive you just created
