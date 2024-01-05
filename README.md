@@ -1,7 +1,9 @@
 ## What is 0up?
-[0up](https://0up.io) is a zero-knowledge, open-source, encrypted file sharing service. 
+
+[0up](https://0up.io) is a zero-knowledge, open-source, encrypted file sharing service.
 
 ## What is zero-knowledge?
+
 From [Wikipedia](https://en.wikipedia.org/wiki/Zero-knowledge_service): Zero-knowledge refers to an online service that stores, transfers or manipulates data in a way that maintains a high level of confidentiality, where the data is only accessible to the data's owner (the client), and not to the service provider.
 
 ## How 0up works
@@ -17,7 +19,7 @@ In addition to the hosted version of 0up (https://0up.io), you're free to clone,
 ## What you'll need:
 
 1. An account with an S3-compatible storage service. We recommend [Backblaze B2](https://www.backblaze.com/cloud-storage-v1)
-2. A PostgreSQL database (free hosted providers like [Supabase](https://supabase.com/) work great)
+2. A PostgreSQL database
 3. Node.JS 18+
 
 ## Create an S3 bucket
@@ -40,7 +42,7 @@ We'll create a prefix of `1/` and apply a 1-day lifecycle policy to it.
 
 ### Enable CORS
 
-CORS must be enabled on your S3 bucket to allow uploads and downloads. For B2, this requires [installing the B2 CLI](https://www.backblaze.com/docs/cloud-storage-command-line-tools) (the `CORS Rules` option in the B2 web interface will not suffice for our purposes). 
+CORS must be enabled on your S3 bucket to allow uploads and downloads. For B2, this requires [installing the B2 CLI](https://www.backblaze.com/docs/cloud-storage-command-line-tools) (the `CORS Rules` option in the B2 web interface will not suffice for our purposes).
 
 Once you've installed and configured the B2 CLI, we can set the CORS rules with the following command. Make sure to set your particular values for `allowedOrigins`, and `your-bucket-name`:
 
@@ -52,9 +54,10 @@ your-bucket-name allPrivate
 
 ## Create a PostgreSQL database
 
-Create a PostgreSQL database, making note of the credentials (user, password, host, database name) as we'll need those during configuration. If you're looking for a free and easy PostgreSQL option, see [Supabase](https://supabase.com/).
+Create a PostgreSQL database, making note of the credentials (user, password, host, database name) as we'll need those during configuration.
 
 ## Get the code
+
 To get started hosting your own instance of 0up, clone (or fork and clone) this repo.
 
 ```bash
@@ -62,6 +65,7 @@ git clone https://github.com/0sumcode/0up.git
 cd 0up
 npm i
 ```
+
 ## Configuration
 
 Copy `.env.example` to `.env`. Then open and edit the `.env` file and configure the database and S3 parameters accordingly.

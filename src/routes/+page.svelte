@@ -34,7 +34,8 @@
   let expires: number,
     downloads: number,
     url: string | null = null,
-    copied = false;
+    copied = false,
+    status = '';
 
   // Create/sign an upload request
   const createUpload = async (isMultipart = false) => {
@@ -79,7 +80,7 @@
       .use(UppyEncryptPlugin)
       .use(Dashboard, {
         width: 2432,
-        height: 400,
+        height: 384,
         theme: 'dark',
         inline: true,
         target: '#uppy-dashboard',
@@ -164,7 +165,9 @@
           }
         },
       })
+      .on('upload', () => (status = 'Encrypting & uploading…'))
       .on('complete', async (result) => {
+        status = 'Finalizing. Please wait…';
         const files = [];
 
         if (!result.successful.length) return;
@@ -194,6 +197,7 @@
         // Reset uppy & generate new password for future upload
         uppy.cancelAll();
         uppy.getPlugin('UppyEncryptPlugin')?.setOptions({ password: UppyEncrypt.generatePassword() });
+        status = '';
       });
   });
 </script>
@@ -202,10 +206,36 @@
   <title>0up - encrypted file sharing</title>
 </svelte:head>
 
+<!-- Status notification -->
+{#if status}
+  <div aria-live="assertive" class="pointer-events-none fixed inset-0 z-20 flex animate-pulse items-end px-4 py-6 sm:items-start sm:p-6">
+    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+      <div class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-zinc-900 opacity-80 shadow-lg ring-2 ring-blue-600">
+        <div class="p-4">
+          <div class="flex items-center">
+            <div class="flex w-0 flex-1 justify-between">
+              <span class="pr-4">
+                <svg class="-ml-1 mr-3 h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </span>
+              <p class="w-0 flex-1 text-sm font-medium text-white">Encrypting &amp; uploading&hellip;</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}
+
 <div class="py-12 {url ? 'hidden' : 'visible'}">
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto sm:text-center">
-      <h2 class="text-base font-semibold leading-7 text-blue-400">
+      <h2 class="text-base font-semibold leading-7 text-blue-500">
         Free, ephemeral, <a href="https://github.com/0sumcode/0up" target="_blank" class="underline">open-source</a>
       </h2>
       <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl"><span class="font-audiowide">0</span>-knowledge encrypted file uploads</p>
@@ -213,7 +243,7 @@
   </div>
   <div class="relative overflow-hidden pt-12">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div id="uppy-dashboard"></div>
+      <div id="uppy-dashboard" class="h-96"></div>
       <div class="flex flex-col lg:flex-row">
         <!-- First Column -->
         <div class="lg:w-1/2">
