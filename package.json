@@ -1,7 +1,8 @@
 {
   "name": "0up",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && npx prisma migrate deploy",
