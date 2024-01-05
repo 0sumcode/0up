@@ -86,6 +86,7 @@
         target: '#uppy-dashboard',
         showProgressDetails: true,
         disableThumbnailGenerator: true,
+        doneButtonHandler: null,
         note: `${filesize(maxUploadSize, { round: 1 })} max upload size. Up to ${maxUploadFiles} files per upload.`,
         proudlyDisplayPoweredByUppy: false,
       })
@@ -170,7 +171,10 @@
         status = 'Finalizing. Please wait…';
         const files = [];
 
-        if (!result.successful.length) return;
+        if (!result.successful.length) {
+          status = '';
+          return;
+        }
 
         for (const file of result.successful) {
           files.push({ path: file.uploadURL.split('/').slice(-2).join('/'), data: file.meta.encryption });
@@ -208,7 +212,7 @@
 
 <!-- Status notification -->
 {#if status}
-  <div aria-live="assertive" class="pointer-events-none fixed inset-0 z-20 flex animate-pulse items-end px-4 py-6 sm:items-start sm:p-6">
+  <div aria-live="assertive" class="pointer-events-none fixed inset-0 z-20 flex items-end px-4 py-6 sm:items-start sm:p-6">
     <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
       <div class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-zinc-900 opacity-80 shadow-lg ring-2 ring-blue-600">
         <div class="p-4">
@@ -223,7 +227,7 @@
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               </span>
-              <p class="w-0 flex-1 text-sm font-medium text-white">Encrypting &amp; uploading&hellip;</p>
+              <p class="w-0 flex-1 text-sm font-medium text-white">{status}</p>
             </div>
           </div>
         </div>

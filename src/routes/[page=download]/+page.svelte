@@ -14,7 +14,6 @@
   dayjs.extend(relativeTime);
 
   export let data;
-  if (!data.upload || !data.files) invalidateAll();
 
   $NewUploadStore.showButton = true;
   const expiresIn = dayjs().to(data.upload.expire_at);
