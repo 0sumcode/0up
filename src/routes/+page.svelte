@@ -39,7 +39,7 @@
 
   // Create/sign an upload request
   const createUpload = async (isMultipart = false) => {
-    const response = await fetch(`/_api/upload/s3${isMultipart ? '/multipart' : ''}`, {
+    const response = await fetch(`/api/upload/s3${isMultipart ? '/multipart' : ''}`, {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -115,7 +115,7 @@
             throw new Error('Cannot sign without a key, an uploadId, and a partNumber');
           }
 
-          const response = await fetch(`/_api/upload/s3/multipart/${uploadId}/${partNumber}?key=${encodeURIComponent(key)}`, { signal });
+          const response = await fetch(`/api/upload/s3/multipart/${uploadId}/${partNumber}?key=${encodeURIComponent(key)}`, { signal });
 
           if (!response.ok) {
             throw new Error('Request failed');
@@ -127,7 +127,7 @@
         listParts: async (file, { key, uploadId, signal }) => {
           signal?.throwIfAborted();
 
-          const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, { signal });
+          const response = await fetch(`/api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, { signal });
 
           if (!response.ok) {
             throw new Error('Request failed');
@@ -139,7 +139,7 @@
         completeMultipartUpload: async (file, { key, uploadId, parts, signal }) => {
           signal?.throwIfAborted();
 
-          const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}/complete?key=${encodeURIComponent(key)}`, {
+          const response = await fetch(`/api/upload/s3/multipart/${encodeURIComponent(uploadId)}/complete?key=${encodeURIComponent(key)}`, {
             method: 'POST',
             headers: {
               accept: 'application/json',
@@ -156,7 +156,7 @@
           return data;
         },
         abortMultipartUpload: async (file: UppyFile, { key, uploadId, signal }) => {
-          const response = await fetch(`/_api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, {
+          const response = await fetch(`/api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, {
             method: 'DELETE',
             signal,
           });
@@ -180,7 +180,7 @@
           files.push({ path: file.uploadURL.split('/').slice(-2).join('/'), data: file.meta.encryption });
         }
 
-        const response = await fetch(`/_api/upload/complete`, {
+        const response = await fetch(`/api/upload/complete`, {
           method: 'POST',
           headers: {
             accept: 'application/json',

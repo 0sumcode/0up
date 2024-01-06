@@ -80,7 +80,7 @@
     // Get signed download URL
     if (!file.decrypted) {
       downloading = true;
-      const s3url = await fetch(`/_api/download/s3/${data.upload.id}/${file.file.id}`, {
+      const s3url = await fetch(`/api/download/s3/${data.upload.id}/${file.file.id}`, {
         cache: 'no-store',
       });
       if (!s3url.ok) {
@@ -152,12 +152,12 @@
   };
 
   const confirmDelete = async () => {
-    await fetch(`/_api/download/${data.upload.id}`, { method: 'DELETE' });
+    await fetch(`/api/download/${data.upload.id}`, { method: 'DELETE' });
     invalidateAll();
   };
 
   const confirmReport = async () => {
-    await fetch(`/_api/download/${data.upload.id}`, { method: 'PUT', body: JSON.stringify({ report: reportInput || 'Reported' }) });
+    await fetch(`/api/download/${data.upload.id}`, { method: 'PUT', body: JSON.stringify({ report: reportInput || 'Reported' }) });
     invalidateAll();
   };
 </script>
