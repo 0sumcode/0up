@@ -90,4 +90,18 @@ npm run dev
 
 ## Deploying to production
 
-Your 0up instance can easily be deployed to any hosting platform including [Vercel](https://vercel.com/docs/getting-started-with-vercel) and [Cloudflare Workers](https://developers.cloudflare.com/workers/get-started/guide/). We recommend reading their guides to get started with a production deployment.
+Your 0up instance can easily be deployed to virtually any hosting platform so long as it can run Node.JS and talk to a PostgreSQL database - including frontend hosting platforms like [Vercel](https://vercel.com/docs/getting-started-with-vercel).
+
+Once you've setup your production environment, ensure you've enabled CORS as noted above for your production domain and set your `.env` variables to your production values. To build for production, run:
+
+```bash
+npm run build
+```
+
+### Cleanup Cron Job
+
+A database cleanup cronjob (`GET https://your.host.here/api/cron/cleanup`) can be called at regular intervals to purge expired data from the database. The request requires an `Authorization` header with the value you've set in your .env file under `PRIVATE_CRON_SECRET`. You may use a service like [Pipedream](https://pipedream.com) for this, or simply create a cronjob to run a command like:
+
+```bash
+curl -H "Authorization: YOUR_CRON_SECRET" "https://your.host.here/api/cron/cleanup"
+```
