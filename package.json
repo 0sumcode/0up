@@ -48,6 +48,7 @@
     "@uppy/core": "^3.7.1",
     "@uppy/dashboard": "^3.7.1",
     "dayjs": "^1.11.10",
+    "dotenv": "^16.3.1",
     "filesize": "^10.1.0",
     "uppy-encrypt": "^1.0.2"
   }
