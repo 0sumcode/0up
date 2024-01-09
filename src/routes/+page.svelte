@@ -208,6 +208,9 @@
 
 <svelte:head>
   <title>0up - encrypted file sharing</title>
+  {#if showFaq}
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+  {/if}
 </svelte:head>
 
 <!-- Status notification -->
@@ -373,8 +376,31 @@
           <dd class="mt-4 lg:col-span-7 lg:mt-0">
             <p class="text-base leading-7 text-zinc-300">
               We don't collect or sell user data, we don't include ads, and we don't have a paid plan. So, the short answer is, we don't make money. This is
-              simply a passion project. <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Starring us on Github</a> would be much appreciated!
+              simply a passion project. <a href="https://github.com/0sumcode/0up" class="underline" target="_blank">Starring us on Github</a> and/or
+              <a href="https://www.producthunt.com/posts/0up" class="underline" target="_blank">reviewing us on Product Hunt</a> would be much appreciated!
             </p>
+            <div class="mt-2 flex space-x-4">
+              <div class="flex-none">
+                <a
+                  class="github-button"
+                  href="https://github.com/0sumcode/0up"
+                  data-color-scheme="no-preference: light; light: light; dark: dark;"
+                  data-icon="octicon-star"
+                  data-size="large"
+                  data-show-count="true"
+                  aria-label="Star 0sumcode/0up on GitHub">Star</a>
+              </div>
+
+              <div class="flex-none">
+                <a href="https://www.producthunt.com/posts/0up?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-0up" target="_blank"
+                  ><img
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=433516&theme=dark"
+                    alt="0up - Free&#0044;&#0032;open&#0045;source&#0044;&#0032;encrypted&#0032;file&#0032;sharing&#0032;service | Product Hunt"
+                    style="width: 250px; height: 54px;"
+                    width="250"
+                    height="54" /></a>
+              </div>
+            </div>
           </dd>
         </div>
 
