@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    env_file: ../.env
+    environment:
+      - PRIVATE_DATABASE_URL=postgresql://postgres:password@database:5432/postgres
+    ports:
+      - 3000:3000/tcp
+    depends_on:
+      - database
+
+  cleanup:
+    image: curlimages/curl:8.6.0
+    env_file: ../.env
+    command: ["sh", "-c", "while true; do echo \"Cleaning up\"; curl -H \"Authorization: $PRIVATE_CRON_SECRET\" http://app:3000/api/cron/cleanup; sleep 600; done"]
+    depends_on:
+      - app
+
+  database:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: password
