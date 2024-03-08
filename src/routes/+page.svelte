@@ -262,7 +262,13 @@
               name="expires"
               class="mx-1 rounded-md border-0 bg-white/5 py-1.5 text-xs text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-blue-500 md:mx-2 md:text-base [&_*]:text-black">
               {#each expireOptions as value}
-                <option {value}>{value} Hour{value > 1 ? 's' : ''}</option>
+                <option {value}>
+                  {#if value > 24 && value % 24 === 0}
+                    {value / 24} Days
+                  {:else}
+                    {value} Hour{value > 1 ? 's' : ''}
+                  {/if}
+                </option>
               {/each}
             </select>
             or
