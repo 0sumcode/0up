@@ -98,6 +98,10 @@ Once you've setup your production environment, ensure you've enabled CORS as not
 npm run build
 ```
 
+## Running in Docker
+
+There is an example configuration for running 0up in a Docker Compose-based setup in the the `docker` subdirectory.
+
 ### Cleanup Cron Job
 
 A database cleanup cronjob (`GET https://your.host.here/api/cron/cleanup`) can be called at regular intervals to purge expired data from the database. The request requires an `Authorization` header with the value you've set in your .env file under `PRIVATE_CRON_SECRET`. You may use a service like [Pipedream](https://pipedream.com) for this, or simply create a cronjob to run a command like:
