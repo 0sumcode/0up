@@ -1,8 +1,9 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
+import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.{html,js,svelte,ts}'],
+  content: ['./app/**/*.{ts,tsx,mdx}', './components/**/*.{ts,tsx}', './mdx-components.tsx'],
   darkMode: 'class',
   theme: {
     extend: {
@@ -11,5 +12,5 @@ export default {
       },
     },
   },
-  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
+  plugins: [forms, typography],
 };
