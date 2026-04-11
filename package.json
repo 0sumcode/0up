@@ -26,13 +26,14 @@
     "dayjs": "^1.11.10",
     "drizzle-orm": "^0.33.0",
     "filesize": "^10.1.0",
-    "pg": "^8.12.0",
     "next": "^14.2.5",
+    "pg": "^8.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "uppy-encrypt": "^1.0.2"
   },
   "devDependencies": {
+    "@netlify/functions": "^5.2.0",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "@types/mdx": "^2.0.13",

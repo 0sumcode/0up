@@ -112,4 +112,8 @@ npm run build
 
 Uploads that pass `expire_at` or are soft-deleted should be purged from both the database and S3. 0up ships with a cron route at `/api/cron/cleanup` guarded by `Authorization: Bearer $CRON_SECRET`.
 
-On Vercel, `vercel.json` already schedules this route hourly. On other hosts, set up your own cron (GitHub Actions, systemd timer, etc.) to hit the endpoint with the bearer token on whatever cadence you prefer.
+On Vercel, `vercel.json` already schedules this route hourly.
+
+On Netlify, a scheduled function at `netlify/functions/cleanup.mts` runs hourly and hits the cron route with the bearer token — nothing else to configure. Make sure `CRON_SECRET` is set in your Netlify environment variables.
+
+On other hosts, set up your own cron (GitHub Actions, systemd timer, etc.) to hit the endpoint with the bearer token on whatever cadence you prefer.
