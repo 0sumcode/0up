@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide weird "upload # files" button from Uppy */
+.uppy-StatusBar-actions .uppy-StatusBar-actionBtn--upload:not(.uppy-c-btn-primary) {
+  visibility: hidden;
+}
+
+.uppy-Dashboard-inner {
+  border: none;
+  opacity: 0.8;
+}

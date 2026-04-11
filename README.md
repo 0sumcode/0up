@@ -19,7 +19,7 @@ In addition to the hosted version of 0up (https://0up.io), you're free to clone,
 ## What you'll need:
 
 1. An account with an S3-compatible storage service. We recommend [Backblaze B2](https://www.backblaze.com/cloud-storage-v1)
-2. A PostgreSQL database
+2. A Postgres database (local Postgres, [Neon](https://neon.tech), Supabase, Vercel Postgres, etc.)
 3. Node.JS 18+
 
 ## Create an S3 bucket
@@ -52,10 +52,6 @@ b2 update-bucket \
 your-bucket-name allPrivate
 ```
 
-## Create a PostgreSQL database
-
-Create a PostgreSQL database, making note of the credentials (user, password, host, database name) as we'll need those during configuration.
-
 ## Get the code
 
 To get started hosting your own instance of 0up, clone (or fork and clone) this repo.
@@ -68,17 +64,23 @@ npm i
 
 ## Configuration
 
-Copy `.env.example` to `.env`. Then open and edit the `.env` file and configure the database and S3 parameters accordingly.
+Copy `.env.example` to `.env`. Then open and edit the `.env` file and configure the parameters accordingly.
 
 ```bash
 cp .env.example .env
 ```
 
-Next, deploy the database schema:
+`NEXT_PUBLIC_*` variables are exposed to the browser (upload size limits, expire options, FAQ flags, organization name/contact). Everything else is server-only — your Postgres `DATABASE_URL`, S3 credentials, and `CRON_SECRET`.
+
+## Run database migrations
+
+0up uses [Drizzle ORM](https://orm.drizzle.team/) against any Postgres database. Point `DATABASE_URL` at your database and run:
 
 ```bash
-npx prisma migrate deploy
+npm run db:migrate
 ```
+
+This creates the `upload` and `file` tables. During development you can also browse the DB with `npm run db:studio`, and regenerate migrations after schema changes with `npm run db:generate`.
 
 ## Starting a dev instance
 
@@ -88,20 +90,26 @@ Now that all your configuration parameters have been set, you should be able to 
 npm run dev
 ```
 
+Open http://localhost:3000.
+
 ## Deploying to production
 
-Your 0up instance can easily be deployed to virtually any hosting platform so long as it can run Node.JS and talk to a PostgreSQL database - including frontend hosting platforms like [Vercel](https://vercel.com/docs/getting-started-with-vercel).
+0up is a [Next.js](https://nextjs.org) App Router project and deploys cleanly to [Vercel](https://vercel.com/docs/getting-started-with-vercel) or any Node.js host.
 
-Once you've setup your production environment, ensure you've enabled CORS as noted above for your production domain and set your `.env` variables to your production values. To build for production, run:
+Before you deploy:
+
+1. Ensure CORS is enabled on your S3 bucket for your production origin (see above).
+2. Set your `.env` variables in the hosting platform's environment (all of `NEXT_PUBLIC_*`, `DATABASE_URL`, `CRON_SECRET`, and `S3_*`).
+3. Run `npm run db:migrate` against your production database.
+
+To build for production:
 
 ```bash
 npm run build
 ```
 
-### Cleanup Cron Job
+### Expired upload cleanup (cron)
 
-A database cleanup cronjob (`GET https://your.host.here/api/cron/cleanup`) can be called at regular intervals to purge expired data from the database. The request requires an `Authorization` header with the value you've set in your .env file under `PRIVATE_CRON_SECRET`. You may use a service like [Pipedream](https://pipedream.com) for this, or simply create a cronjob to run a command like:
+Uploads that pass `expire_at` or are soft-deleted should be purged from both the database and S3. 0up ships with a cron route at `/api/cron/cleanup` guarded by `Authorization: Bearer $CRON_SECRET`.
 
-```bash
-curl -H "Authorization: YOUR_CRON_SECRET" "https://your.host.here/api/cron/cleanup"
-```
+On Vercel, `vercel.json` already schedules this route hourly. On other hosts, set up your own cron (GitHub Actions, systemd timer, etc.) to hit the endpoint with the bearer token on whatever cadence you prefer.
