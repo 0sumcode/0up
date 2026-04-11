@@ -50,6 +50,7 @@ export function DownloadClient({ upload, files: serverFiles }: { upload: UploadP
   const [reader, setReader] = useState<ReadableStreamDefaultReader<Uint8Array> | null>(null);
   const [reportInput, setReportInput] = useState('');
   const [error, setError] = useState<{ message: string; description: string }>({ message: '', description: '' });
+  const [completed, setCompleted] = useState<'reported' | 'deleted' | null>(null);
 
   const expiresIn = dayjs().to(dayjs(upload.expireAt));
 
@@ -59,6 +60,7 @@ export function DownloadClient({ upload, files: serverFiles }: { upload: UploadP
 
   // Reconcile file list when server data changes (after router.refresh)
   useEffect(() => {
+    if (completed) return;
     if (serverFiles.length === 0) {
       setError({ message: 'No files found', description: 'Maximum downloads reached.' });
       return;
@@ -68,7 +70,7 @@ export function DownloadClient({ upload, files: serverFiles }: { upload: UploadP
       const ids = new Set(serverFiles.map((f) => f.id));
       return prev.filter((f) => ids.has(f.file.id));
     });
-  }, [serverFiles]);
+  }, [serverFiles, completed]);
 
   // Decrypt metadata once libsodium is ready
   useEffect(() => {
@@ -172,18 +174,26 @@ export function DownloadClient({ upload, files: serverFiles }: { upload: UploadP
   };
 
   const confirmDelete = async () => {
-    await fetch(`/api/download/${upload.id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/download/${upload.id}`, { method: 'DELETE' });
     setShowDeleteConfirm(false);
-    router.refresh();
+    if (!res.ok) {
+      setError({ message: 'Delete failed', description: 'Unable to delete this upload. Please try again.' });
+      return;
+    }
+    setCompleted('deleted');
   };
 
   const confirmReport = async () => {
-    await fetch(`/api/download/${upload.id}`, {
+    const res = await fetch(`/api/download/${upload.id}`, {
       method: 'PUT',
       body: JSON.stringify({ report: reportInput || 'Reported' }),
     });
     setShowReportConfirm(false);
-    router.refresh();
+    if (!res.ok) {
+      setError({ message: 'Report failed', description: 'Unable to submit this report. Please try again.' });
+      return;
+    }
+    setCompleted('reported');
   };
 
   return (
@@ -264,7 +274,11 @@ export function DownloadClient({ upload, files: serverFiles }: { upload: UploadP
         </div>
       )}
 
-      {error.message ? (
+      {completed === 'reported' ? (
+        <ErrorBox title="Upload reported">Thank you. This upload has been reported and removed.</ErrorBox>
+      ) : completed === 'deleted' ? (
+        <ErrorBox title="Upload deleted">This upload and all of its files have been permanently removed.</ErrorBox>
+      ) : error.message ? (
         <ErrorBox title={error.message}>{error.description}</ErrorBox>
       ) : (
         <div className="px-4">
