@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
-import Dashboard from '@uppy/react/lib/Dashboard.js';
+import Dashboard from '@uppy/react/dashboard';
 import Uppy, { type UppyFile } from '@uppy/core';
-import AwsS3Multipart from '@uppy/aws-s3-multipart';
+import AwsS3Multipart from '@uppy/aws-s3';
 import { UppyEncryptPlugin, UppyEncrypt } from 'uppy-encrypt';
 import { filesize } from 'filesize';
 import { useNewUpload } from './NewUploadContext';
 import { publicEnv } from '@/lib/env';
 
-import '@uppy/core/dist/style.css';
-import '@uppy/dashboard/dist/style.css';
+import '@uppy/core/css/style.css';
+import '@uppy/dashboard/css/style.css';
 
 async function createUpload(isMultipart = false) {
   const response = await fetch(`/api/upload/s3${isMultipart ? '/multipart' : ''}`, {
@@ -33,7 +33,7 @@ function buildUppy(maxUploadSize: number, maxUploadFiles: number) {
   })
     .use(UppyEncryptPlugin)
     .use(AwsS3Multipart, {
-      shouldUseMultipart: (file: UppyFile) => (file.size ?? 0) > 100 * 2 ** 20,
+      shouldUseMultipart: (file) => (file.size ?? 0) > 100 * 2 ** 20,
       allowedMetaFields: ['name', 'type'],
       getUploadParameters: async () => {
         const data = await createUpload();
@@ -58,12 +58,14 @@ function buildUppy(maxUploadSize: number, maxUploadFiles: number) {
       },
       listParts: async (_file, { key, uploadId, signal }) => {
         signal?.throwIfAborted();
+        if (!uploadId) throw new Error('Missing uploadId');
         const response = await fetch(`/api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, { signal });
         if (!response.ok) throw new Error('Request failed');
         return response.json();
       },
       completeMultipartUpload: async (_file, { key, uploadId, parts, signal }) => {
         signal?.throwIfAborted();
+        if (!uploadId) throw new Error('Missing uploadId');
         const response = await fetch(`/api/upload/s3/multipart/${encodeURIComponent(uploadId)}/complete?key=${encodeURIComponent(key)}`, {
           method: 'POST',
           headers: { accept: 'application/json' },
@@ -74,6 +76,7 @@ function buildUppy(maxUploadSize: number, maxUploadFiles: number) {
         return response.json();
       },
       abortMultipartUpload: async (_file, { key, uploadId, signal }) => {
+        if (!uploadId) return;
         const response = await fetch(`/api/upload/s3/multipart/${encodeURIComponent(uploadId)}?key=${encodeURIComponent(key)}`, {
           method: 'DELETE',
           signal,
@@ -97,7 +100,7 @@ export function HomeClient() {
   const [copied, setCopied] = useState(false);
   const [status, setStatus] = useState('');
 
-  const [uppy] = useState<Uppy>(() => buildUppy(maxUploadSize, maxUploadFiles));
+  const [uppy] = useState(() => buildUppy(maxUploadSize, maxUploadFiles));
 
   // Sync nav "New Upload" button + reset handler
   useEffect(() => {
@@ -108,16 +111,17 @@ export function HomeClient() {
   // Uppy events — expires/downloads captured per-render
   useEffect(() => {
     const onUpload = () => setStatus('Encrypting & uploading…');
-    const onComplete = async (result: { successful: UppyFile[] }) => {
+    const onComplete = async (result: { successful?: UppyFile<Record<string, unknown>, Record<string, never>>[] }) => {
       setStatus('Finalizing. Please wait…');
 
-      if (!result.successful.length) {
+      const successful = result.successful ?? [];
+      if (!successful.length) {
         setStatus('');
         return;
       }
 
-      const files = result.successful.map((file) => ({
-        path: ((file as unknown as { uploadURL: string }).uploadURL).split('/').slice(-2).join('/'),
+      const files = successful.map((file) => ({
+        path: (file.uploadURL ?? '').split('/').slice(-2).join('/'),
         data: (file.meta as unknown as { encryption: unknown }).encryption,
       }));
 
@@ -128,7 +132,7 @@ export function HomeClient() {
       });
 
       const data = (await response.json()) as { upload: string };
-      const password = (result.successful[0].meta as unknown as { password: string }).password;
+      const password = (successful[0].meta as unknown as { password: string }).password;
       const nextUrl = `${window.location.origin}/${data.upload.replace(/-/g, '')}#${password}`;
       setUrl(nextUrl);
       window.scrollTo(0, 0);
@@ -141,11 +145,11 @@ export function HomeClient() {
     };
 
     uppy.on('upload', onUpload);
-    uppy.on('complete', onComplete as unknown as (result: unknown) => void);
+    uppy.on('complete', onComplete);
 
     return () => {
       uppy.off('upload', onUpload);
-      uppy.off('complete', onComplete as unknown as (result: unknown) => void);
+      uppy.off('complete', onComplete);
     };
   }, [uppy, expires, downloads, setShowButton]);
 
@@ -210,9 +214,8 @@ export function HomeClient() {
               width={2432}
               height={384}
               theme="dark"
-              showProgressDetails
               disableThumbnailGenerator
-              doneButtonHandler={undefined as unknown as () => void}
+              doneButtonHandler={null}
               note={`${filesize(maxUploadSize, { round: 1 })} max upload size. Up to ${maxUploadFiles} files per upload.`}
               proudlyDisplayPoweredByUppy={false}
             />
